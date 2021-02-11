@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GeoCached</string>
+    <string name="server_url">http://exactmark.pythonanywhere.com</string>
 </resources>
