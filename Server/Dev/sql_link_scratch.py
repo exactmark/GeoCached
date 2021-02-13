@@ -24,6 +24,7 @@ session = Session()
 one_user = User(id="Red", password="RedPW")
 session.add(one_user)
 session.add_all([
+
     User(id='Green', password='GreenPW'),
     User(id='Blue', password='BluePW'),
     User(id='Yellow', password='YellowPW')])
