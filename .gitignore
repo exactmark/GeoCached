@@ -1,2 +1,4 @@
 .DS_Store
 *.bat
+**/.idea/
+**/__pycache__/
