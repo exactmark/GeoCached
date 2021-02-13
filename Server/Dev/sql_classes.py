@@ -15,6 +15,7 @@ class User(Base):
 
     id = Column(String(250), primary_key=True)
     password = Column(String(250), nullable=False)
+    # some_new_field = Column(String(250),nullable=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
