@@ -2,3 +2,4 @@
 *.bat
 **/.idea/
 **/__pycache__/
+**/*.db
