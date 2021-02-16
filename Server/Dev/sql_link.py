@@ -23,7 +23,7 @@ class sql_link(object):
         self.Session.configure(bind=self.engine)
 
     def get_location(self, location_id: int):
-        # This will run a query on the db for the location with id location_id
+        # Returns a location given a single ID
         found_location = Location(id=-1, name="The first place", x_coord=12, y_coord=13,
                                   description="A place description")
         return found_location.as_dict()

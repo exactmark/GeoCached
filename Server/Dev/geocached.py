@@ -16,7 +16,7 @@ def hello_world():
 
 
 @app.route("/get_single_location/")
-def get_location_api():
+def get_location():
     location_id = request.args.get('id')
     if location_id:
         location = sql_link.get_location(location_id)
@@ -26,7 +26,7 @@ def get_location_api():
 
 
 @app.route("/get_single_user/")
-def get_user_api():
+def get_user():
     user_id = request.args.get('id')
     if user_id:
         user = sql_link.get_user(user_id)
@@ -36,7 +36,7 @@ def get_user_api():
 
 
 @app.route("/add_single_user/")
-def add_user_api():
+def add_user():
     # TODO: password should not be passed as GET, should be a POST?
     new_user = {'id': request.args.get('id'),
                 'password': request.args.get('pw')}
