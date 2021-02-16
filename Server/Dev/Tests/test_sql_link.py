@@ -3,17 +3,18 @@ from multiprocessing import Process
 import requests
 from sql_link import *
 
-test_url_root = 'http://127.0.0.1:5000/'
-
-
-def start_test_server():
-    from geocached import app
-    app.run()
 
 class TestSql_link(TestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        pass
+
+    @classmethod
+    def tearDownClass(cls):
+        print("done")
+
     def get_root(self):
-        url = test_url_root
         response = requests.get(url)
         self.assertEqual(response.text, "Caching with style")
 
