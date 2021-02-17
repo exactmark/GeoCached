@@ -3,6 +3,7 @@ package com.team4.geocached;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 
 public class debug_api extends AppCompatActivity {
@@ -20,14 +21,14 @@ public class debug_api extends AppCompatActivity {
         tv = findViewById(R.id.getSingleLocation);
 
         text= "DEFAULT_TEXT";
-        String URL = getResources().getString(R.string.server_url) + "/?id=2";
+
         new Thread(() -> {
             // Run in background
             try {
-                text = serverConnection.ping(URL);
+                text = serverConnection.get_single_location(2);
             }
             catch (Exception e){
-                e.printStackTrace();
+                Log.d("ERR",e.getMessage());
             }
             // Update UI post execution
             runOnUiThread(() -> tv.setText(text));
