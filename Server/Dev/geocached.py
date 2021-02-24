@@ -6,8 +6,10 @@ from flask import Flask, request
 app = Flask(__name__)
 from sql_link import sql_link
 
-sql_link = sql_link('sqlite:///test.db')
-sql_link.create_db_link()
+db_location = 'sqlite:///test.db'
+
+sql_link = sql_link(db_location)
+# sql_link.create_db_link()
 
 
 @app.route('/')

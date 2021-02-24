@@ -2,36 +2,39 @@ from unittest import TestCase
 from multiprocessing import Process
 import requests
 from sql_link import *
+import json
 
+db_loc = 'sqlite:///:memory:'
+
+
+# 'sqlite:///test.db'
+
+test_users = [{"id":"TestUser1","password":"TestPassword1"},
+              {"id":"TestUser2","password":"TestPassword2"},]
 
 class TestSql_link(TestCase):
 
     @classmethod
-    def setUpClass(cls):
-        pass
+    def setUpClass(self):
+        self.sql_link = sql_link(db_loc)
+        for single_user in test_users:
+            # single_json = json.dumps(single_user,indent=4)
+            # print(single_json)
+            self.sql_link.add_user(single_user)
 
     @classmethod
-    def tearDownClass(cls):
+    def tearDownClass(self):
         print("done")
 
-    def get_root(self):
-        response = requests.get(url)
-        self.assertEqual(response.text, "Caching with style")
+    def test_add_user(self):
+        pass
 
+    def test_get_user(self):
+        TestUser1 = self.sql_link.get_user("TestUser1")
+        self.assertEqual(TestUser1["password"],"TestPassword1")
 
-
-
-    def ensure_server_active(self):
-        try:
-            self.get_root()
-        except:
-            import subprocess as sp
-            process = sp.Popen('other_file.py', shell=True, stdout=sp.PIPE, stderr=sp.PIPE)
-            out, err = process.communicate()  # The output and error streams.
+    def test_add_location(self):
+        pass
 
     def test_get_location(self):
-        self.ensure_server_active()
-        url = test_url_root+'add_single_user/?id=Orange&pw=Bogus'
-        response = requests.get(url)
-        self.assertEqual(response.text,"failed to add")
-
+        pass

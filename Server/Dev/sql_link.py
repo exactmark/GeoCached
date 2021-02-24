@@ -11,6 +11,7 @@ class sql_link(object):
 
     def __init__(self, db_location=None):
         self.init_db(db_location)
+        self.create_db_link()
 
     def init_db(self, db_location='sqlite:///:memory:'):
         self.engine = create_engine(db_location, echo=True)
