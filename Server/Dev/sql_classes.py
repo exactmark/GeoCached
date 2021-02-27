@@ -39,8 +39,8 @@ class Location(Base):
     name = Column(String(250))
     obscured_url = Column(String(250))
     clear_url = Column(String(250))
-    x_coord = Column(DECIMAL)
-    y_coord = Column(DECIMAL)
+    x_coord = Column(String(20))
+    y_coord = Column(String(20))
     description = Column(String(250), nullable=True)
     log_entries = relationship("LogEntry")
 

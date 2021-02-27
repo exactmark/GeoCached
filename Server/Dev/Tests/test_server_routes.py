@@ -32,16 +32,6 @@ class TestServerRoutes_link(TestCase):
         response = requests.get(url)
         self.assertEqual(response.text, "Caching with style")
 
-    # def ensure_server_active(self):
-    #     try:
-    #         self.get_root()
-    #     except:
-    #         import multiprocessing as mp
-    #         mp.set_start_method('spawn')
-    #         p = mp.Process(target=start_test_server, args=())
-    #         p.start()
-    #         time.sleep(1)
-
     def test_add_user_non_unique(self):
         url = test_url_root + 'add_single_user/?id=Orange&pw=Bogus'
         response = requests.get(url)

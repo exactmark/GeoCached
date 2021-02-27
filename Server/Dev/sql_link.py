@@ -24,14 +24,25 @@ class sql_link(object):
         self.Session.configure(bind=self.engine)
 
     def get_location(self, location_id: int):
-        # Returns a location given a single ID
-        found_location = Location(id=-1, name="The first place", x_coord=12, y_coord=13,
-                                  description="A place description")
-        return found_location.as_dict()
+        print("Location id is %d"%location_id)
+        result = self.Session().query(Location).filter_by(id=location_id).first()
+        # print(result)
+        if result:
+            return result.as_dict()
+        else:
+            return {}
 
     def add_location(self, location_json: json):
         new_location = Location()
         new_location = set_columns_from_json(new_location, location_json)
+        session = self.Session()
+        session.add(new_location)
+        session.commit()
+
+    def list_location_ids(self):
+        session = self.Session()
+        result = [instance.id for instance in session.query(Location.id)]
+        return result
 
     def get_user(self, user_id: str):
         session = self.Session()
@@ -49,9 +60,10 @@ class sql_link(object):
         session.commit()
 
 
+
 def set_columns_from_json(new_object: object, input_json: json):
     attribute_list = [attrname for attrname in dir(new_object) if attrname[:1] != "_"]
-    print(attribute_list)
+    # print(attribute_list)
     for single_key in input_json.keys():
         if single_key in attribute_list:
             setattr(new_object, single_key, input_json[single_key])
