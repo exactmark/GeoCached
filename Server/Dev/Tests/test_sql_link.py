@@ -6,7 +6,6 @@ import json
 
 db_loc = 'sqlite:///:memory:'
 
-
 # 'sqlite:///test.db'
 
 base_users = [{"id": "TestUser1", "password": "TestPassword1"},
@@ -56,13 +55,15 @@ class TestSql_link(TestCase):
 
     def test_add_location(self):
         testing_location = {"id": "4", "name": "Test From Add", "x_coord": "1", "y_coord": "1",
-                           "description": "Quadrant 1"}
+                            "description": "Quadrant 1"}
         self.sql_link.add_location(testing_location)
         just_added = self.sql_link.get_location(4)
-        self.assertEqual(testing_location["name"],just_added["name"])
+        self.assertEqual(testing_location["name"], just_added["name"])
 
     def test_list_location_ids(self):
         retrieved_ids = self.sql_link.list_location_ids()
+        retrieved_ids = retrieved_ids.split(",")
+        retrieved_ids = [int(x) for x in retrieved_ids]
         base_location_ids = [int(single_location["id"]) for single_location in base_locations]
         # to validate, ensure that we have a matching ID for every ID in the base set
         self.assertEqual(len(set(base_location_ids).intersection(set(retrieved_ids))),
@@ -70,4 +71,4 @@ class TestSql_link(TestCase):
 
     def test_get_location(self):
         result = self.sql_link.get_location(0)
-        self.assertEqual(result["description"],"Quadrant 1")
+        self.assertEqual(result["description"], "Quadrant 1")

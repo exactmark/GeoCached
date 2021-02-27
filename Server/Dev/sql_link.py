@@ -24,9 +24,10 @@ class sql_link(object):
         self.Session.configure(bind=self.engine)
 
     def get_location(self, location_id: int):
-        print("Location id is %d"%location_id)
-        result = self.Session().query(Location).filter_by(id=location_id).first()
-        # print(result)
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        session = Session()
+        result = session.query(Location).filter_by(id=location_id).first()
         if result:
             return result.as_dict()
         else:
@@ -35,17 +36,23 @@ class sql_link(object):
     def add_location(self, location_json: json):
         new_location = Location()
         new_location = set_columns_from_json(new_location, location_json)
-        session = self.Session()
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        session = Session()
         session.add(new_location)
         session.commit()
 
     def list_location_ids(self):
-        session = self.Session()
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        session = Session()
         result = [instance.id for instance in session.query(Location.id)]
-        return ",".join(result)
+        return ",".join([str(x) for x in result])
 
     def get_user(self, user_id: str):
-        session = self.Session()
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        session = Session()
         result = session.query(User).filter_by(id=user_id).first()
         if result:
             return result.as_dict()
@@ -53,7 +60,9 @@ class sql_link(object):
             return {}
 
     def add_user(self, json_data: json):
-        session = self.Session()
+        Session = sessionmaker()
+        Session.configure(bind=self.engine)
+        session = Session()
         new_obj = User()
         new_obj = set_columns_from_json(new_obj, json_data)
         session.add(new_obj)
