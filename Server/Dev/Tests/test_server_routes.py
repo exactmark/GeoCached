@@ -41,3 +41,6 @@ class TestServerRoutes_link(TestCase):
         url = test_url_root + 'get_single_user/?id=Orange'
         response = requests.get(url)
         self.assertEqual(response.text, '{"id":"Orange","password":"Bogus"}\n')
+
+    def test_add_location(self):
+        pass

@@ -42,7 +42,7 @@ class sql_link(object):
     def list_location_ids(self):
         session = self.Session()
         result = [instance.id for instance in session.query(Location.id)]
-        return result
+        return ",".join(result)
 
     def get_user(self, user_id: str):
         session = self.Session()
@@ -53,9 +53,9 @@ class sql_link(object):
             return {}
 
     def add_user(self, json_data: json):
+        session = self.Session()
         new_obj = User()
         new_obj = set_columns_from_json(new_obj, json_data)
-        session = self.Session()
         session.add(new_obj)
         session.commit()
 

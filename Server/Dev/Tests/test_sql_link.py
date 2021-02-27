@@ -32,10 +32,7 @@ class TestSql_link(TestCase):
 
     @classmethod
     def add_base_users(self):
-
         for single_user in base_users:
-            # single_json = json.dumps(single_user,indent=4)
-            # print(single_json)
             self.sql_link.add_user(single_user)
 
     @classmethod
@@ -67,7 +64,7 @@ class TestSql_link(TestCase):
     def test_list_location_ids(self):
         retrieved_ids = self.sql_link.list_location_ids()
         base_location_ids = [int(single_location["id"]) for single_location in base_locations]
-
+        # to validate, ensure that we have a matching ID for every ID in the base set
         self.assertEqual(len(set(base_location_ids).intersection(set(retrieved_ids))),
                          len(base_locations))
 

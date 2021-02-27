@@ -9,6 +9,8 @@ from sql_link import sql_link
 db_location = 'sqlite:///test.db'
 
 sql_link = sql_link(db_location)
+
+
 # sql_link.create_db_link()
 
 
@@ -25,6 +27,11 @@ def get_location():
         return location
     else:
         return "no location id"
+
+
+@app.route("/get_location_list/")
+def get_location_list():
+    return sql_link.list_location_ids()
 
 
 @app.route("/get_single_user/")
@@ -47,6 +54,23 @@ def add_user():
         return "success"
     except IntegrityError:
         return "user already exists"
+    finally:
+        return "failed to add"
+
+
+@app.route("/add_location/")
+def add_location():
+    # TODO: password should not be passed as GET, should be a POST?
+    new_location = {"id": request.args.get("id"),
+                    "name": request.args.get("name"),
+                    "x_coord": request.args.get("x_coord"),
+                    "y_coord": request.args.get("y_coord"),
+                    "description": request.args.get("description")}
+    try:
+        sql_link.add_location(new_location)
+        return "success"
+    except IntegrityError:
+        return "location already exists"
     finally:
         return "failed to add"
 
