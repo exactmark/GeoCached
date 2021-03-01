@@ -60,7 +60,6 @@ def add_user():
 
 @app.route("/add_location/")
 def add_location():
-    # TODO: password should not be passed as GET, should be a POST?
     new_location = {"id": request.args.get("id"),
                     "name": request.args.get("name"),
                     "x_coord": request.args.get("x_coord"),
