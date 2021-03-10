@@ -13,6 +13,8 @@ sql_link = sql_link(db_location)
 
 # sql_link.create_db_link()
 
+# https://stackoverflow.com/questions/34009296/using-sqlalchemy-session-from-flask-raises-sqlite-objects-created-in-a-thread-c
+
 
 @app.route('/')
 def hello_world():

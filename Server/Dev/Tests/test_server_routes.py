@@ -47,7 +47,7 @@ class TestServerRoutes_link(TestCase):
         response = requests.get(url)
         url = test_url_root + "/add_location/?id=43&name=This%20is%20more%20location&x_coord=34.45&y_coord=-66,44"
         response = requests.get(url)
-        print(response.text)
+
 
     def test_list_locations(self):
         url = test_url_root + "/get_location_list/"

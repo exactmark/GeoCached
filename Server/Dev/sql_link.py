@@ -1,6 +1,5 @@
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
-from sql_classes import Base
 from sql_classes import *
 import json
 
@@ -11,7 +10,7 @@ class sql_link(object):
 
     def __init__(self, db_location=None):
         self.init_db(db_location)
-        self.create_db_link()
+        # self.create_db_link()
 
     def init_db(self, db_location='sqlite:///:memory:'):
         self.engine = create_engine(db_location, echo=True)
@@ -28,6 +27,7 @@ class sql_link(object):
         Session.configure(bind=self.engine)
         session = Session()
         result = session.query(Location).filter_by(id=location_id).first()
+        session.close()
         if result:
             return result.as_dict()
         else:
@@ -41,12 +41,14 @@ class sql_link(object):
         session = Session()
         session.add(new_location)
         session.commit()
+        session.close()
 
     def list_location_ids(self):
         Session = sessionmaker()
         Session.configure(bind=self.engine)
         session = Session()
         result = [instance.id for instance in session.query(Location.id)]
+        session.close()
         return ",".join([str(x) for x in result])
 
     def get_user(self, user_id: str):
@@ -54,6 +56,7 @@ class sql_link(object):
         Session.configure(bind=self.engine)
         session = Session()
         result = session.query(User).filter_by(id=user_id).first()
+        session.close()
         if result:
             return result.as_dict()
         else:
@@ -67,7 +70,7 @@ class sql_link(object):
         new_obj = set_columns_from_json(new_obj, json_data)
         session.add(new_obj)
         session.commit()
-
+        session.close()
 
 
 def set_columns_from_json(new_object: object, input_json: json):
