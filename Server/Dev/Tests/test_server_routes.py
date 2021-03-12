@@ -40,7 +40,7 @@ class TestServerRoutes_link(TestCase):
     def test_get_user(self):
         url = test_url_root + 'get_single_user/?id=Orange'
         response = requests.get(url)
-        self.assertEqual(response.text, '{"id":"Orange","password":"Bogus"}\n')
+        self.assertEqual(response.text, '{"id":"Orange","password":"OrangePw"}\n')
 
     def test_add_location(self):
         url = test_url_root + "/add_location/?id=42&name=This%20is%20another%20location&x_coord=34.45&y_coord=-66,44"
