@@ -2,14 +2,16 @@ from sqlalchemy.exc import IntegrityError
 import json
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
+import globals
+import uuid
+import time
+import datetime
 
 app = Flask(__name__)
 db_location = 'sqlite:///test.db'
 app.config["SQLALCHEMY_DATABASE_URI"] = db_location
-# from sql_link import sql_link
-#
-#
-# sql_link = sql_link(db_location)
+
+DEBUG_ERROR = "debug_error"
 
 db = SQLAlchemy(app)
 
@@ -24,7 +26,6 @@ class User(Base):
 
     id = db.Column(db.String(250), primary_key=True)
     password = db.Column(db.String(250), nullable=False)
-    # some_new_field = db.Column(db.String(250),nullable=True)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -61,13 +62,14 @@ class LogEntry(Base):
     __tablename__ = "logentry"
 
     id = db.Column(db.Integer, primary_key=True)
-    location_id = db.Column(db.Integer,db.ForeignKey('location.id'),nullable=False)
+    location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
     user_id = db.Column(db.String(250), db.ForeignKey('user.id'), nullable=False)
     timestamp = db.Column(db.DateTime)
     text = db.Column(db.String(250))
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 def db_get_location(location_id: int):
     result = db.session.query(Location).filter_by(id=location_id).first()
@@ -77,6 +79,7 @@ def db_get_location(location_id: int):
     else:
         return {}
 
+
 def db_add_location(location_json: json):
     new_location = Location()
     new_location = set_columns_from_json(new_location, location_json)
@@ -84,10 +87,12 @@ def db_add_location(location_json: json):
     db.session.commit()
     db.session.close()
 
+
 def db_list_location_ids():
     result = [instance.id for instance in db.session.query(Location.id)]
     db.session.close()
     return ",".join([str(x) for x in result])
+
 
 def db_get_user(user_id: str):
     result = db.session.query(User).filter_by(id=user_id).first()
@@ -97,6 +102,7 @@ def db_get_user(user_id: str):
     else:
         return {}
 
+
 def db_add_user(json_data: json):
     new_obj = User()
     new_obj = set_columns_from_json(new_obj, json_data)
@@ -105,14 +111,44 @@ def db_add_user(json_data: json):
     db.session.close()
 
 
+def db_get_session(user_id: str):
+    result = db.session.query(UserSession).filter_by(id=user_id).first()
+    if result is None:
+        return db_generate_session(user_id)
+    result_dict = result.as_dict()
+    if result_dict["valid_through"] < datetime.now():
+        db_delete_session(user_id)
+        return db_generate_session(user_id)
+    else:
+        return result.as_dict()["session_key"]
+
+
+def db_delete_session(user_id: str):
+    target_record = db.session.query(UserSession).filter_by(id=user_id).first()
+    if target_record is not None:
+        db.session.delete(target_record)
+        db.session.commit()
+
+
+def db_delete_user(user_id: str):
+    target_record = db.session.query(User).filter_by(id=user_id).first()
+    if target_record is not None:
+        db.session.delete(target_record)
+        db.session.commit()
+
+
+def db_generate_session(user_id: str):
+    generated_uuid = uuid.uuid4()
+
+    return generated_uuid
+
+
 def set_columns_from_json(new_object: object, input_json: json):
     attribute_list = [attrname for attrname in dir(new_object) if attrname[:1] != "_"]
-    # print(attribute_list)
     for single_key in input_json.keys():
         if single_key in attribute_list:
             setattr(new_object, single_key, input_json[single_key])
     return new_object
-
 
 
 @app.route('/')
@@ -130,6 +166,22 @@ def get_location():
         return "no location id"
 
 
+@app.route("/login/")
+def login():
+    proto_user = {'id': request.args.get('id'),
+                  'password': request.args.get('pw')}
+    user_entry = db_get_user(proto_user["id"])
+    if "password" not in user_entry.keys():
+        return {DEBUG_ERROR: "No user entry."}
+    elif proto_user["password"] != user_entry["password"]:
+        return {DEBUG_ERROR: "Bad password."}
+    else:
+        successful_login = True
+        # TODO get session key here
+        session_key = db_get_session(proto_user["id"])
+        return {"session_key": session_key}
+
+
 @app.route("/get_location_list/")
 def get_location_list():
     return db_list_location_ids()
@@ -142,7 +194,7 @@ def get_user():
         user = db_get_user(user_id)
         return user
     else:
-        return "no user id"
+        return {DEBUG_ERROR: "No user found."}
 
 
 @app.route("/add_single_user/")
@@ -150,6 +202,9 @@ def add_user():
     # TODO: password should not be passed as GET, should be a POST?
     new_user = {'id': request.args.get('id'),
                 'password': request.args.get('pw')}
+    existing = db_get_user(new_user["id"])
+    if existing:
+        return {DEBUG_ERROR: "User exists."}
     try:
         db_add_user(new_user)
         return "success"
