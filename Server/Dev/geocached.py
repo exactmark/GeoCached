@@ -1,15 +1,24 @@
 from sqlalchemy.exc import IntegrityError
 import json
-from flask import Flask, request
+import os
+from flask import Flask, flash, request, redirect, url_for
+from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import globals
 import uuid
 import time
 import datetime
 
+UPLOAD_FOLDER = '/uploads'
+ALLOWED_EXTENSIONS = {'jpg'}
+
 app = Flask(__name__)
 db_location = 'sqlite:///test.db'
 app.config["SQLALCHEMY_DATABASE_URI"] = db_location
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# Limit to 16 megabyte uploads
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 DEBUG_ERROR = "debug_error"
 
@@ -116,11 +125,13 @@ def db_get_session(user_id: str):
     if result is None:
         return db_generate_session(user_id)
     result_dict = result.as_dict()
-    if result_dict["valid_through"] < datetime.now():
-        db_delete_session(user_id)
-        return db_generate_session(user_id)
-    else:
-        return result.as_dict()["session_key"]
+
+    # if result_dict["valid_through"] < datetime.now():
+    #     db_delete_session(user_id)
+    #     return db_generate_session(user_id)
+    # else:
+    #     return result.as_dict()["session_key"]
+    return result_dict["session_key"]
 
 
 def db_delete_session(user_id: str):
@@ -138,8 +149,11 @@ def db_delete_user(user_id: str):
 
 
 def db_generate_session(user_id: str):
-    generated_uuid = uuid.uuid4()
-
+    generated_uuid = str(uuid.uuid4())
+    new_session = UserSession(id=user_id, session_key=generated_uuid)
+    db.session.add(new_session)
+    db.session.commit()
+    db.session.close()
     return generated_uuid
 
 
@@ -149,6 +163,11 @@ def set_columns_from_json(new_object: object, input_json: json):
         if single_key in attribute_list:
             setattr(new_object, single_key, input_json[single_key])
     return new_object
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -164,6 +183,27 @@ def get_location():
         return location
     else:
         return "no location id"
+
+
+@app.route('/put_location_image', methods=['GET', 'POST'])
+def upload_file():
+    if request.method == 'POST':
+        # check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        # if user does not select file, browser also
+        # submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect(url_for('uploaded_file',
+                                    filename=filename))
+    return {}
 
 
 @app.route("/login/")

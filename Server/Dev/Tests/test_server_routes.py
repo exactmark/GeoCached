@@ -10,7 +10,9 @@ test_url_root = 'http://127.0.0.1:5000/'
 
 
 def start_test_server():
-    from geocached import app
+    from geocached import app, db
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///:memory:'
+    db.create_all()
     globals.debug_mode = True
     app.run()
 
@@ -26,11 +28,14 @@ class TestServerRoutes_link(TestCase):
         # this sleep does not appear to be necessary
         # time.sleep(1)
         url = test_url_root + 'add_single_user/?id=Red&pw=RedPW'
+        response = requests.get(url)
+        url = test_url_root + 'add_single_user/?id=Orange&pw=OrangePw'
+        response = requests.get(url)
 
     @classmethod
     def tearDownClass(cls):
         cls.server_process.terminate()
-        print("done")
+        # print("done")
 
     def get_root(self):
         url = test_url_root
@@ -38,7 +43,7 @@ class TestServerRoutes_link(TestCase):
         self.assertEqual(response.text, "Caching with style")
 
     def test_add_user_non_unique(self):
-        url = test_url_root + 'add_single_user/?id=Orange&pw=Bogus'
+        url = test_url_root + 'add_single_user/?id=Orange&pw=OrangePw'
         response = requests.get(url)
         self.assertEqual(self.get_dict_from_url_response(response)[DEBUG_ERROR], "User exists.")
 
@@ -52,6 +57,11 @@ class TestServerRoutes_link(TestCase):
         response = requests.get(url)
         url = test_url_root + "add_location/?id=43&name=This%20is%20more%20location&x_coord=34.45&y_coord=-66,44"
         response = requests.get(url)
+        url = test_url_root + "get_location_list/"
+        response = requests.get(url)
+        loc_ids = set(response.text.split(","))
+        small_list = loc_ids.intersection({"42", "43"})
+        self.assertEqual(len(small_list), 2)
 
     def test_list_locations(self):
         url = test_url_root + "get_location_list/"
@@ -78,6 +88,9 @@ class TestServerRoutes_link(TestCase):
             self.assertEqual(True, False, "Successful login provoked error")
         if "session_key" not in response_dict.keys():
             self.assertEqual(True, False, "Session key not returned")
+        session_key = response_dict["session_key"]
+        self.assertEqual(len(session_key), 36)
+        self.assertEqual(len(session_key.split("-")), 5)
 
     def get_dict_from_url_response(self, url_response) -> dict:
         response_text = url_response.text.lstrip()
