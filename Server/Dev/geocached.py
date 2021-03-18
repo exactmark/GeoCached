@@ -262,15 +262,38 @@ def hello_world():
     return 'Caching with style'
 
 
+
+
+
 @app.route("/get_location_list/")
 @require_session_key
 def get_location_list():
+    """Gets a list of locations currently in the db.
+
+    Args:
+        None
+
+    Returns:
+        string: a comma separated list of id numbers
+    """
     return db_list_location_ids()
+
+
+
 
 
 @app.route("/get_single_location/")
 @require_session_key
 def get_location():
+    """Gets json for single location
+
+    Args:
+    GET:
+        id (int): The index to retrieve
+
+    Returns:
+        json: location information
+    """
     location_id = request.args.get('id')
     if location_id:
         location = db_get_location(location_id)
@@ -280,9 +303,24 @@ def get_location():
         return {DEBUG_ERROR: "no location id"}
 
 
+
+
+
 @app.route('/put_location_image', methods=['POST'])
 @require_session_key
 def upload_main_location_image():
+    """Uploads the main image for a location and does some processing.
+    The location must exist in the db.
+
+    Args:
+    POST:
+        loc_id (int): The index to retrieve
+        or
+        loc_name (str): the Name as per the location table
+
+    Returns:
+        json: success/failure
+    """
     loc_id = request.form.get('loc_id')
     if not loc_id:
         loc_name = request.form.get('loc_name')
@@ -307,9 +345,26 @@ def upload_main_location_image():
         return {DEBUG_MESSAGE: "File upload successful"}
 
 
+
+
+
 @app.route("/add_location/", methods=['POST'])
 @require_session_key
 def add_location():
+    """Allows creation of new location.
+    Will assign the next integer as id.
+    Probably not parallel safe
+
+    Args:
+    POST:
+        name (str): The location name. Currently being checked for uniqueness
+        x_coord (str): Latitude
+        y_coord (str): Longitude
+        description (str): A short description
+
+    Returns:
+        json: success/failure
+    """
     last_loc_id = db_list_location_ids().split(",")[-1]
     if last_loc_id is not '':
         proto_id = str(int(last_loc_id) + 1)
@@ -330,11 +385,20 @@ def add_location():
     except IntegrityError:
         return {DEBUG_ERROR: "failed to add"}
 
-
-@app.route("/login/")
+@app.route("/login/", methods=['POST'])
 def login():
-    proto_user = {'id': request.args.get('id'),
-                  'password': request.args.get('pw')}
+    """Allows login
+
+    Args:
+    POST:
+        id (str): User name
+        pw (str): Password
+
+    Returns:
+        json: failure message or session_key
+    """
+    proto_user = {'id': request.form.get('id'),
+                  'password': request.form.get('pw')}
     user_entry = db_get_user(proto_user["id"])
     if not user_entry:
         return {DEBUG_MESSAGE: "No user entry."}
@@ -352,6 +416,15 @@ def login():
 @app.route("/get_single_user/")
 @require_session_key
 def get_user():
+    """Check if a user exists
+
+    Args:
+    GET:
+        id (str): User name
+
+    Returns:
+        json: failure message or id
+    """
     user_id = request.args.get('id')
     user = db_get_user(user_id)
     if user:
@@ -364,7 +437,16 @@ def get_user():
 @app.route("/add_single_user/", methods=['POST'])
 @require_session_key
 def add_user():
-    # TODO: password should not be passed as GET, should be a POST?
+    """Creates user in db
+
+    Args:
+    POST:
+        id (str): User name
+        pw (str): password
+
+    Returns:
+        json: failure message or id
+    """
     if request.method == 'POST':
         id = request.form.get('id')
         pw = request.form.get('pw')
@@ -385,6 +467,15 @@ def add_user():
 @app.route("/init_db/")
 @require_session_key
 def init_db():
+    """Make sure the db has been initialized...
+
+    Args:
+    GET:
+        None
+
+    Returns:
+        json: Vague message
+    """
     db.create_all()
     return {DEBUG_MESSAGE: "create_all called"}
 
