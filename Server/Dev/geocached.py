@@ -10,9 +10,10 @@ import time
 import datetime
 import auth
 from PIL import Image
+from functools import wraps
 
 UPLOAD_FOLDER = './uploads'
-ALLOWED_EXTENSIONS = {'jpg','png'}
+ALLOWED_EXTENSIONS = {'jpg'}
 
 app = Flask(__name__)
 db_location = 'sqlite:///test.db'
@@ -22,12 +23,12 @@ app.config.update(
     TESTING=True,
     SECRET_KEY=auth.SECRET_KEY
 )
-
 # Limit to 16 megabyte uploads
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 DEBUG_ERROR = "debug_error"
 DEBUG_MESSAGE = "debug_message"
+REQUIRE_SESSION_KEY = False
 
 db = SQLAlchemy(app)
 
@@ -102,7 +103,24 @@ def db_get_location(location_id: int):
     if result:
         return result.as_dict()
     else:
-        return {}
+        return None
+
+
+def db_get_location_by_name(location_name: str):
+    result = db.session.query(Location).filter_by(name=location_name).first()
+    print(result)
+    db.session.close()
+    if result:
+        return result.as_dict()
+    else:
+        return None
+
+
+def db_location_is_duplicate(location_dict):
+    # return False
+    if db_get_location_by_name(location_dict["name"]):
+        return True
+    return False
 
 
 def db_add_location(location_json: json):
@@ -123,9 +141,10 @@ def db_get_user(user_id: str):
     result = db.session.query(User).filter_by(id=user_id).first()
     db.session.close()
     if result:
-        return result.as_dict()
+        result_dict = result.as_dict()
+        return result_dict
     else:
-        return {DEBUG_ERROR:"User not found."}
+        return None
 
 
 def db_add_user(json_data: json):
@@ -136,7 +155,7 @@ def db_add_user(json_data: json):
     db.session.close()
 
 
-def db_get_session(user_id: str):
+def db_get_new_session(user_id: str):
     result = db.session.query(UserSession).filter_by(id=user_id).first()
     if result is None:
         return db_generate_session(user_id)
@@ -148,6 +167,14 @@ def db_get_session(user_id: str):
     # else:
     #     return result.as_dict()["session_key"]
     return result_dict["session_key"]
+
+
+def db_get_session_owner(session_key):
+    result = db.session.query(UserSession).filter_by(session_key=session_key).first()
+    if result is None:
+        return None
+    else:
+        return result.as_dict()["id"]
 
 
 def db_delete_session(user_id: str):
@@ -191,13 +218,38 @@ def get_extension(filename):
 
 def process_uploaded_image(new_filename):
     # using https://stackoverflow.com/questions/47143332/how-to-pixelate-a-square-image-to-256-big-pixels-with-python
-    for x in [16,32,64]:
+    for x in [16, 32, 64]:
         img = Image.open(new_filename)
         # Resize smoothly down to 16x16 pixels
         imgSmall = img.resize((x, x), resample=Image.BILINEAR)
         result = imgSmall.resize(img.size, Image.NEAREST)
         no_extension = ".".join(new_filename.split(".")[:-1])
-        result.save(no_extension + "_sub_"+str(x)+"." + get_extension(new_filename))
+        result.save(no_extension + "_sub_" + str(x) + "." + get_extension(new_filename))
+
+
+# **************
+# DECORATORS START
+# **************
+
+
+def require_session_key(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not REQUIRE_SESSION_KEY:
+            return func(*args, **kwargs)
+        session_key = None
+        if request.method == 'POST':
+            session_key = request.form.get('session_key')
+        else:
+            session_key = request.args.get('session_key')
+        if not session_key:
+            return {DEBUG_ERROR: "no session key"}
+        elif not db_get_session_owner(session_key):
+            return {DEBUG_ERROR: "session key not found"}
+        print(db_get_session_owner(session_key))
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 # **************
@@ -210,40 +262,73 @@ def hello_world():
     return 'Caching with style'
 
 
+@app.route("/get_location_list/")
+@require_session_key
+def get_location_list():
+    return db_list_location_ids()
+
+
 @app.route("/get_single_location/")
+@require_session_key
 def get_location():
     location_id = request.args.get('id')
     if location_id:
         location = db_get_location(location_id)
-        return location
+        if location:
+            return location
     else:
         return {DEBUG_ERROR: "no location id"}
 
 
-@app.route('/put_location_image', methods=['GET', 'POST'])
-def upload_file():
-    if request.method == 'POST':
-        loc_id = request.form.get('loc_id')
-        user_id = request.form.get('user_id')
-        if not loc_id or not user_id:
-            return {DEBUG_ERROR: "Required key not provided"}
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            return {DEBUG_ERROR: "No file part."}
-        file = request.files['file']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        if file.filename == '':
-            return {DEBUG_ERROR: "No selected file"}
-        if file and allowed_file(file.filename):
-            # if we were trusting the user filename, we'd need this
-            # filename = secure_filename(file.filename)
-            new_filename = loc_id+"."+get_extension(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
-            file.save(file_path)
-            process_uploaded_image(file_path)
-            return {DEBUG_MESSAGE: "File upload successful"}
-    return {DEBUG_ERROR: "Use post."}
+@app.route('/put_location_image', methods=['POST'])
+@require_session_key
+def upload_main_location_image():
+    loc_id = request.form.get('loc_id')
+    if not loc_id:
+        loc_name = request.form.get('loc_name')
+        if loc_name:
+            loc_id = (db_get_location_by_name(loc_name))["id"]
+            loc_id = str(loc_id)
+    if loc_id is None:
+        return {DEBUG_ERROR: "Required key not provided"}
+    if 'file' not in request.files:
+        return {DEBUG_ERROR: "No file part."}
+    file = request.files['file']
+    if file.filename == '':
+        return {DEBUG_ERROR: "No selected file"}
+    print(file.filename)
+    if file and allowed_file(file.filename):
+        # if we were trusting the user filename, we'd need this
+        # filename = secure_filename(file.filename)
+        new_filename = loc_id + "." + get_extension(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], new_filename)
+        file.save(file_path)
+        process_uploaded_image(file_path)
+        return {DEBUG_MESSAGE: "File upload successful"}
+
+
+@app.route("/add_location/", methods=['POST'])
+@require_session_key
+def add_location():
+    last_loc_id = db_list_location_ids().split(",")[-1]
+    if last_loc_id is not '':
+        proto_id = str(int(last_loc_id) + 1)
+    else:
+        proto_id = '0'
+    # not multi process safe
+    new_location = {"id": proto_id,
+                    "name": request.form.get("name"),
+                    "x_coord": request.form.get("x_coord"),
+                    "y_coord": request.form.get("y_coord"),
+                    "description": request.form.get("description")}
+
+    try:
+        if db_location_is_duplicate(new_location):
+            return {DEBUG_ERROR: "Location is duplicate"}
+        db_add_location(new_location)
+        return {DEBUG_MESSAGE: "success", "id": proto_id}
+    except IntegrityError:
+        return {DEBUG_ERROR: "failed to add"}
 
 
 @app.route("/login/")
@@ -251,6 +336,8 @@ def login():
     proto_user = {'id': request.args.get('id'),
                   'password': request.args.get('pw')}
     user_entry = db_get_user(proto_user["id"])
+    if not user_entry:
+        return {DEBUG_MESSAGE: "No user entry."}
     if "password" not in user_entry.keys():
         return {DEBUG_ERROR: "No user entry."}
     elif proto_user["password"] != user_entry["password"]:
@@ -258,57 +345,50 @@ def login():
     # TODO add session timeout?
     else:
         successful_login = True
-        session_key = db_get_session(proto_user["id"])
+        session_key = db_get_new_session(proto_user["id"])
         return {"session_key": session_key}
 
 
-@app.route("/get_location_list/")
-def get_location_list():
-    return db_list_location_ids()
-
-
 @app.route("/get_single_user/")
+@require_session_key
 def get_user():
     user_id = request.args.get('id')
-    if user_id:
-        user = db_get_user(user_id)
+    user = db_get_user(user_id)
+    if user:
+        user["password"] = ""
         return user
     else:
         return {DEBUG_ERROR: "No user found."}
 
 
-@app.route("/add_single_user/")
+@app.route("/add_single_user/", methods=['POST'])
+@require_session_key
 def add_user():
     # TODO: password should not be passed as GET, should be a POST?
-    new_user = {'id': request.args.get('id'),
-                'password': request.args.get('pw')}
-    existing = db_get_user(new_user["id"])
-    if existing:
-        return {DEBUG_ERROR: "User exists."}
-    try:
-        db_add_user(new_user)
-        return "success"
-    except IntegrityError:
-        return "user already exists"
-    finally:
-        return {DEBUG_ERROR: "Other failure."}
+    if request.method == 'POST':
+        id = request.form.get('id')
+        pw = request.form.get('pw')
+        new_user = {'id': id,
+                    'password': pw}
+        existing = db_get_user(new_user["id"])
+        if existing:
+            return {DEBUG_ERROR: "User exists."}
+        try:
+            db_add_user(new_user)
+            return {DEBUG_MESSAGE: "User added"}
+        except IntegrityError:
+            return {DEBUG_ERROR: "Other failure."}
+    else:
+        return {DEBUG_ERROR: "Use post"}
 
 
-@app.route("/add_location/")
-def add_location():
-    new_location = {"id": request.args.get("id"),
-                    "name": request.args.get("name"),
-                    "x_coord": request.args.get("x_coord"),
-                    "y_coord": request.args.get("y_coord"),
-                    "description": request.args.get("description")}
-    try:
-        db_add_location(new_location)
-        return "success"
-    except IntegrityError:
-        return "location already exists"
-    finally:
-        return "failed to add"
+@app.route("/init_db/")
+@require_session_key
+def init_db():
+    db.create_all()
+    return {DEBUG_MESSAGE: "create_all called"}
 
 
 if __name__ == '__main__':
+    db.create_all()
     app.run()
