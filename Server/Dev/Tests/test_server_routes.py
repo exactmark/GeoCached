@@ -53,9 +53,9 @@ class TestServerRoutes_link(TestCase):
         self.assertEqual(response.text, '{"id":"Orange","password":"OrangePw"}\n')
 
     def test_add_location(self):
-        url = test_url_root + "add_location/?id=42&name=This%20is%20another%20location&x_coord=34.45&y_coord=-66,44"
+        url = test_url_root + "add_location/?id=42&name=This%20is%20another%20location&x_coord=34.45&y_coord=-66.44"
         response = requests.get(url)
-        url = test_url_root + "add_location/?id=43&name=This%20is%20more%20location&x_coord=34.45&y_coord=-66,44"
+        url = test_url_root + "add_location/?id=43&name=This%20is%20more%20location&x_coord=34.45&y_coord=-66.44"
         response = requests.get(url)
         url = test_url_root + "get_location_list/"
         response = requests.get(url)
