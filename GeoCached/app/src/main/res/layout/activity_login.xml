@@ -11,37 +11,40 @@
         android:layout_height="match_parent"
         tools:context=".LoginActivity"
         android:id="@+id/container"
-
+        android:background="@drawable/background"
         android:orientation="vertical"
         android:gravity="center_horizontal">
 
         <TextView
-            android:layout_width="125dp"
-            android:layout_height="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="100dp"
-            android:background="#ffffff"
-            android:textSize="24sp"
-            android:textColor="@color/black"
-            android:text="@string/geocached"/>
+            android:background="#002196F3"
+            android:text="@string/geocached"
+            android:textAlignment="center"
+            android:textColor="@color/teal_200"
+            android:textSize="35sp" />
 
         <EditText
             android:id="@+id/edittext_username"
             android:layout_width="190dp"
             android:layout_height="40dp"
             android:layout_marginTop="100dp"
-            android:paddingLeft="2dp"
-            android:background="#ffffff"
+            android:background="#70FFFFFF"
+            android:hint="@string/username"
 
-            android:hint="@string/username"/>
+            android:paddingLeft="2dp"
+            android:singleLine="true" />
 
         <EditText
             android:id="@+id/edittext_password"
             android:layout_width="190dp"
             android:layout_height="40dp"
             android:layout_marginTop="20dp"
-            android:background="#ffffff"
-
-            android:hint="@string/password"/>
+            android:background="#70FFFFFF"
+            android:inputType="textPassword"
+            android:hint="@string/password"
+            android:singleLine="true" />
 
         <Button
             android:id="@+id/button_login"
@@ -62,7 +65,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="35dp"
                 android:text="@string/not_registered"
-                android:textColor="#000000" />
+                android:textColor="#FFFFFF" />
 
             <TextView
                 android:id="@+id/textview_register"

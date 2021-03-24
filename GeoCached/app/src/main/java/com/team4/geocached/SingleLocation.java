@@ -23,18 +23,58 @@ class MyLocationListener implements LocationListener{
 
     LocationObj current;
     LocationObj to;
-    MyLocationListener(LocationObj curr, LocationObj to){
+    TextView directionText;
+    ImageView directionMarker;
+    MyLocationListener(LocationObj curr, LocationObj to, TextView dirText, ImageView dirMarker){
         current = curr;
+        directionText = dirText;
+        directionMarker = dirMarker;
         this.to = to;
+
     }
     @Override
     public void onLocationChanged(@NonNull Location location) {
         current = new LocationObj();
         current.setX_coord(location.getLatitude());
         current.setY_coord(location.getLongitude());
+        double dir_theta = bearing(current, to);
+
+        if(dir_theta >= 35 && dir_theta <=55){
+            directionText.setText("NE");
+        }
+        else if(dir_theta >= 125 && dir_theta <=145){
+            directionText.setText("NW");
+        }
+        else if(dir_theta >= 215 && dir_theta <=235){
+            directionText.setText("SW");
+        }
+        else if(dir_theta >= 305 && dir_theta <=325){
+            directionText.setText("SE");
+        }
+        else if(dir_theta < 35 && dir_theta > 325){
+            directionText.setText("E");
+        }
+        else if(dir_theta > 55 && dir_theta < 125){
+            directionText.setText("N");
+        }
+        else if(dir_theta > 145 && dir_theta < 215){
+            directionText.setText("W");
+        }
+        else if(dir_theta >  235 && dir_theta < 305){
+            directionText.setText("S");
+        }
+
+        double x = Math.round(computeDist(current, to) * 100.0) / 100.0;
+        directionText.setText(directionText.getText() + ", "+ x+"m away.");
+        directionMarker.setRotation((float)dir_theta);
+
+
+
         Log.d("BEARING", String.valueOf(bearing(current, to)));
         Log.d("DIST", String.valueOf(computeDist(current, to)));
     }
+
+
 
     private double computeDist(LocationObj from, LocationObj to){
         double R = 6378100; // metres
@@ -72,6 +112,8 @@ public class SingleLocation extends AppCompatActivity{
 
     TextView description;
     TextView name;
+    TextView directionText;
+    ImageView blurryImage;
     LocationObj locationObj;
     LocationObj current;
     LocationObj to;
@@ -121,6 +163,8 @@ public class SingleLocation extends AppCompatActivity{
         description = findViewById(R.id.description);
         name = findViewById(R.id.location_name);
         directionMarker = findViewById(R.id.directionMarker);
+        directionText = findViewById(R.id.directionText);
+        blurryImage = findViewById(R.id.blurryImage);
 
         current = new LocationObj();
         to = new LocationObj();
@@ -129,6 +173,7 @@ public class SingleLocation extends AppCompatActivity{
         Intent intent = getIntent();
         Log.d("GOT FROM INTENT", String.valueOf(intent.getIntExtra("id",-1)));
         int loc_id = intent.getIntExtra("id",-1);
+
 
         new Thread(()->{
             try{
@@ -143,10 +188,13 @@ public class SingleLocation extends AppCompatActivity{
             runOnUiThread(()->{
                 name.setText(""+ locationObj.getName());
                 description.setText(""+ locationObj.getDescription());
+                int res_id = getResources().getIdentifier("i"+loc_id+"_sub_32", "drawable", getPackageName());
+
+                blurryImage.setImageDrawable(getDrawable(res_id));
             });
         }).start();
 
-        LocationListener locationListener = new MyLocationListener(current, to);
+        LocationListener locationListener = new MyLocationListener(current, to, directionText, directionMarker);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);

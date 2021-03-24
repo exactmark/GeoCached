@@ -46,6 +46,15 @@
             app:srcCompat="@drawable/ic_navigation_arrow_svgrepo_com" />
 
         <TextView
+            android:id="@+id/directionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="N"
+            android:textAlignment="center"
+            android:textSize="30dp"
+            android:textStyle="bold" />
+
+        <TextView
             android:id="@+id/location_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -64,21 +73,12 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:gravity="center|bottom"
-            android:orientation="vertical" >
-
-            <Button
-                android:id="@+id/checkinbutton"
-                android:layout_width="157dp"
-                android:layout_height="57dp"
-                android:layout_gravity="center_horizontal|center"
-                android:text="Checkin" />
-
-        </LinearLayout>
+        <Button
+            android:id="@+id/checkinbutton"
+            android:layout_width="157dp"
+            android:layout_height="57dp"
+            android:layout_gravity="center_horizontal|center"
+            android:text="Checkin" />
 
     </LinearLayout>
 

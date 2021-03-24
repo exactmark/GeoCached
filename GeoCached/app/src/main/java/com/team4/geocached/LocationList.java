@@ -2,7 +2,10 @@ package com.team4.geocached;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -16,6 +19,13 @@ public class LocationList extends AppCompatActivity {
     LocationObj locationObj;
     ServerConnection serverConnection= new ServerConnection();
 
+    public static Drawable getDrawableByName(String name, Context context) {
+        int drawableResource = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
+        if (drawableResource == 0) {
+            throw new RuntimeException("Can't find drawable with name: " + name);
+        }
+        return context.getResources().getDrawable(drawableResource);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,9 +41,16 @@ public class LocationList extends AppCompatActivity {
             // Run in background
             try {
                 String loc_ids = serverConnection.get_location_list();
-
+                Resources resources = getResources();
+                int res_id =-1;
                 for(String id: loc_ids.split(",")){
                     locationObj = serverConnection.get_single_location((Integer.parseInt(id.trim())));
+
+//                    Log.d("Discovery img:", String.valueOf(getDrawableByName("i"+id.trim(), this)));
+
+                    res_id = getResources().getIdentifier("i"+id.trim()+"_sub_16", "drawable", getPackageName());
+                    Log.d("Discovery img:", String.valueOf(res_id));
+                    locationObj.setImage(res_id);
                     arrayList.add(locationObj);
                 }
 

@@ -36,7 +36,7 @@ public class LocationAdapter extends ArrayAdapter<LocationObj> {
 
         TextView txtDes =convertView.findViewById(R.id.txtDes);
 
-//        imageView.setImageResource(getItem(position).getImage());
+        imageView.setImageResource(getItem(position).getImage());
 
         txtName.setText(getItem(position).getName());
 

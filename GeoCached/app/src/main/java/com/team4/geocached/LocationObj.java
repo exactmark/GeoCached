@@ -4,6 +4,7 @@ public class LocationObj {
 
     private int id;
     private String name;
+
     LocationObj(){
 
     }
@@ -27,6 +28,16 @@ public class LocationObj {
     private double x_coord;
     private double y_coord;
     private String description;
+
+    public int getImage() {
+        return image_id;
+    }
+
+    public void setImage(int image_id) {
+        this.image_id = image_id;
+    }
+
+    private int image_id;
 
     public LocationObj(int id, String name, double x_coord, double y_coord, String description) {
         this.id = id;

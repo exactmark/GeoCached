@@ -18,7 +18,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         debug = findViewById(R.id.debug_api);
-        Intent intent = new Intent(getApplicationContext(), LocationList.class);
+        Intent intent = new Intent(getApplicationContext(), Login.class);
         startActivity(intent);
         finish();
 
