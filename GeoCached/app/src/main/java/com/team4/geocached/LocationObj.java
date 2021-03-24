@@ -1,9 +1,12 @@
 package com.team4.geocached;
 
-public class Location {
+public class LocationObj {
 
     private int id;
     private String name;
+    LocationObj(){
+
+    }
 
     public double getX_coord() {
         return x_coord;
@@ -25,7 +28,7 @@ public class Location {
     private double y_coord;
     private String description;
 
-    public Location(int id, String name, double x_coord, double y_coord, String description) {
+    public LocationObj(int id, String name, double x_coord, double y_coord, String description) {
         this.id = id;
         this.name = name;
         this.x_coord = x_coord;

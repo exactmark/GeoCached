@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 
 
@@ -17,8 +18,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         debug = findViewById(R.id.debug_api);
-        Intent intent = new Intent(getApplicationContext(), debug_api.class);
+        Intent intent = new Intent(getApplicationContext(), LocationList.class);
         startActivity(intent);
+        finish();
 
 //        debug.setOnClickListener(v -> {
 //            intent = new Intent(getApplicationContext(), debug_api.class);

@@ -6,4 +6,75 @@
     android:layout_height="match_parent"
     tools:context=".Login">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".LoginActivity"
+        android:id="@+id/container"
+
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:layout_width="125dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="100dp"
+            android:background="#ffffff"
+            android:textSize="24sp"
+            android:textColor="@color/black"
+            android:text="@string/geocached"/>
+
+        <EditText
+            android:id="@+id/edittext_username"
+            android:layout_width="190dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="100dp"
+            android:paddingLeft="2dp"
+            android:background="#ffffff"
+
+            android:hint="@string/username"/>
+
+        <EditText
+            android:id="@+id/edittext_password"
+            android:layout_width="190dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:background="#ffffff"
+
+            android:hint="@string/password"/>
+
+        <Button
+            android:id="@+id/button_login"
+            android:layout_width="190dp"
+            android:layout_height="40dp"
+            android:layout_marginTop="20dp"
+            android:background="#04ea00"
+            android:textColor="#ffffff"
+            android:text="@string/login"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:text="@string/not_registered"
+                android:textColor="#000000" />
+
+            <TextView
+                android:id="@+id/textview_register"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:paddingLeft="10dp"
+                android:text="@string/register"
+                android:textColor="#2196F3"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
