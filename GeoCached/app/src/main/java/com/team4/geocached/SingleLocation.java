@@ -16,6 +16,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,11 +27,13 @@ class MyLocationListener implements LocationListener{
     LocationObj to;
     TextView directionText;
     ImageView directionMarker;
-    MyLocationListener(LocationObj curr, LocationObj to, TextView dirText, ImageView dirMarker){
+    Button checkin;
+    MyLocationListener(LocationObj curr, LocationObj to, TextView dirText, ImageView dirMarker, Button check){
         current = curr;
         directionText = dirText;
         directionMarker = dirMarker;
         this.to = to;
+        checkin = check;
 
     }
     @Override
@@ -68,7 +72,12 @@ class MyLocationListener implements LocationListener{
         directionText.setText(directionText.getText() + ", "+ x+"m away.");
         directionMarker.setRotation((float)dir_theta);
 
-
+        if(x<50){
+            checkin.setEnabled(true);
+        }
+        else{
+            checkin.setEnabled(false);
+        }
 
         Log.d("BEARING", String.valueOf(bearing(current, to)));
         Log.d("DIST", String.valueOf(computeDist(current, to)));
@@ -118,6 +127,7 @@ public class SingleLocation extends AppCompatActivity{
     LocationObj current;
     LocationObj to;
     ImageView directionMarker;
+    Button checkin;
     ServerConnection serverConnection = new ServerConnection();
 
 
@@ -165,6 +175,14 @@ public class SingleLocation extends AppCompatActivity{
         directionMarker = findViewById(R.id.directionMarker);
         directionText = findViewById(R.id.directionText);
         blurryImage = findViewById(R.id.blurryImage);
+        checkin = findViewById(R.id.checkinbutton);
+        checkin.setClickable(false);
+        checkin.setOnClickListener((v)->{
+            Intent checkinIntent = new Intent(getApplicationContext(), CheckIn.class);
+            checkinIntent.putExtra("id",getIntent().getIntExtra("id",-1));
+            startActivity(checkinIntent);
+        });
+
 
         current = new LocationObj();
         to = new LocationObj();
@@ -194,7 +212,7 @@ public class SingleLocation extends AppCompatActivity{
             });
         }).start();
 
-        LocationListener locationListener = new MyLocationListener(current, to, directionText, directionMarker);
+        LocationListener locationListener = new MyLocationListener(current, to, directionText, directionMarker, checkin);
 
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
@@ -209,7 +227,7 @@ public class SingleLocation extends AppCompatActivity{
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 50, locationListener);
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000, 1, locationListener);
 
 
     }

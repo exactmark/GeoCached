@@ -78,7 +78,7 @@
             android:layout_width="157dp"
             android:layout_height="57dp"
             android:layout_gravity="center_horizontal|center"
-            android:text="Checkin" />
+            android:text="Check-in" />
 
     </LinearLayout>
 

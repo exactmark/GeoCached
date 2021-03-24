@@ -3,7 +3,7 @@
     package="com.team4.geocached">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,7 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.GeoCached"
         android:usesCleartextTraffic="true">
-        <activity android:name=".SingleLocation"></activity>
+        <activity android:name=".CheckIn"></activity>
+        <activity android:name=".SingleLocation" />
         <activity android:name=".LocationList" />
         <activity android:name=".Register" />
         <activity android:name=".Login" />
