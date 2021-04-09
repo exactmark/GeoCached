@@ -1,7 +1,7 @@
 from sqlalchemy.exc import IntegrityError
 import json
 import os
-from flask import Flask, flash, request, redirect, url_for
+from flask import Flask, flash, request, redirect, url_for,jsonify
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import globals
@@ -85,7 +85,7 @@ class LogEntry(Base):
     id = db.Column(db.Integer, primary_key=True)
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'), nullable=False)
     user_id = db.Column(db.String(250), db.ForeignKey('user.id'), nullable=False)
-    timestamp = db.Column(db.DateTime)
+    timestamp = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     text = db.Column(db.String(250))
 
     def as_dict(self):
@@ -227,6 +227,37 @@ def process_uploaded_image(new_filename):
         result.save(no_extension + "_sub_" + str(x) + "." + get_extension(new_filename))
 
 
+def db_add_log_entry(json_data: json):
+    new_obj = LogEntry()
+    new_obj = set_columns_from_json(new_obj, json_data)
+    db.session.add(new_obj)
+    db.session.commit()
+    log_id = new_obj.id
+    db.session.close()
+    return log_id
+
+def db_get_logs(location_id: int):
+    result = db.session.query(LogEntry).filter_by(location_id=location_id).all()
+    db.session.close()
+
+    if result:
+        # return_result = []
+        # for row in result:
+        #
+        #     return_result.append( row.as_dict())
+        # return return_result
+        return_result = []
+        return_dict = {}
+        for row in result:
+            return_result.append(row.as_dict())
+        for x in range(0,len(return_result)):
+            return_dict[x]=return_result[x]
+        return return_dict
+    else:
+        return None
+
+
+
 # **************
 # DECORATORS START
 # **************
@@ -299,9 +330,6 @@ def get_location():
         return {DEBUG_ERROR: "no location id"}
 
 
-
-
-
 @app.route('/put_location_image', methods=['POST'])
 @require_session_key
 def upload_main_location_image():
@@ -341,9 +369,6 @@ def upload_main_location_image():
         return {DEBUG_MESSAGE: "File upload successful"}
 
 
-
-
-
 @app.route("/add_location/", methods=['POST'])
 @require_session_key
 def add_location():
@@ -380,6 +405,7 @@ def add_location():
         return {DEBUG_MESSAGE: "success", "id": proto_id}
     except IntegrityError:
         return {DEBUG_ERROR: "failed to add"}
+
 
 @app.route("/login/", methods=['POST'])
 def login():
@@ -475,22 +501,43 @@ def add_log_entry():
     """
     if request.method == 'POST':
         loc_id = request.form.get('loc_id')
+        if loc_id is None:
+            return {DEBUG_ERROR: "Location ID not provided."}
         if not db_get_location(int(loc_id)):
             return {DEBUG_ERROR: "Location ID does not exist."}
-        pw = request.form.get('pw')
-        new_user = {'id': id,
-                    'password': pw}
-        existing = db_get_user(new_user["id"])
-        if existing:
-            return {DEBUG_ERROR: "User exists."}
-        try:
-            db_add_user(new_user)
-            return {DEBUG_MESSAGE: "User added"}
-        except IntegrityError:
-            return {DEBUG_ERROR: "Other failure."}
+        new_log_entry = {'location_id': request.form.get('loc_id'),
+                         'user_id': request.form.get('user_id'),
+                         'text': request.form.get('text')}
+        new_log_id = db_add_log_entry(new_log_entry)
+        return {DEBUG_MESSAGE: "newLogID = %d" % new_log_id}
     else:
         return {DEBUG_ERROR: "Use post"}
 
+@app.route("/get_log_entries/")
+@require_session_key
+def get_log_entries():
+    """Gets json for single location
+
+    Args:
+    GET:
+        id (int): The index to retrieve
+
+    Returns:
+        json: location information
+    """
+    location_id = request.args.get('loc_id')
+    if location_id:
+        location = db_get_location(location_id)
+        if not location:
+            return {DEBUG_ERROR: "location not found"}
+        else:
+            logs = db_get_logs(location_id)
+            if logs:
+                return logs
+            else:
+                return {DEBUG_MESSAGE:"No logs for this location"}
+    else:
+        return {DEBUG_ERROR: "no location id"}
 
 @app.route("/init_db/")
 @require_session_key
