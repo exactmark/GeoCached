@@ -262,9 +262,6 @@ def hello_world():
     return 'Caching with style'
 
 
-
-
-
 @app.route("/get_location_list/")
 @require_session_key
 def get_location_list():
@@ -277,9 +274,6 @@ def get_location_list():
         string: a comma separated list of id numbers
     """
     return db_list_location_ids()
-
-
-
 
 
 @app.route("/get_single_location/")
@@ -299,6 +293,8 @@ def get_location():
         location = db_get_location(location_id)
         if location:
             return location
+        else:
+            return {DEBUG_ERROR: "location not found"}
     else:
         return {DEBUG_ERROR: "no location id"}
 
@@ -449,6 +445,38 @@ def add_user():
     """
     if request.method == 'POST':
         id = request.form.get('id')
+        pw = request.form.get('pw')
+        new_user = {'id': id,
+                    'password': pw}
+        existing = db_get_user(new_user["id"])
+        if existing:
+            return {DEBUG_ERROR: "User exists."}
+        try:
+            db_add_user(new_user)
+            return {DEBUG_MESSAGE: "User added"}
+        except IntegrityError:
+            return {DEBUG_ERROR: "Other failure."}
+    else:
+        return {DEBUG_ERROR: "Use post"}
+
+
+@app.route("/add_log_entry/", methods=['POST'])
+@require_session_key
+def add_log_entry():
+    """Creates user in db
+
+    Args:
+    POST:
+        id (str): User name
+        pw (str): password
+
+    Returns:
+        json: failure message or id
+    """
+    if request.method == 'POST':
+        loc_id = request.form.get('loc_id')
+        if not db_get_location(int(loc_id)):
+            return {DEBUG_ERROR: "Location ID does not exist."}
         pw = request.form.get('pw')
         new_user = {'id': id,
                     'password': pw}
