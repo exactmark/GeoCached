@@ -127,8 +127,10 @@ def db_add_location(location_json: json):
     new_location = Location()
     new_location = set_columns_from_json(new_location, location_json)
     db.session.add(new_location)
+    loc_id = new_location.id
     db.session.commit()
     db.session.close()
+    return loc_id
 
 
 def db_list_location_ids():
@@ -386,14 +388,8 @@ def add_location():
     Returns:
         json: success/failure
     """
-    last_loc_id = db_list_location_ids().split(",")[-1]
-    if last_loc_id is not '':
-        proto_id = str(int(last_loc_id) + 1)
-    else:
-        proto_id = '0'
     # not multi process safe
-    new_location = {"id": proto_id,
-                    "name": request.form.get("name"),
+    new_location = {"name": request.form.get("name"),
                     "x_coord": request.form.get("x_coord"),
                     "y_coord": request.form.get("y_coord"),
                     "description": request.form.get("description")}
@@ -401,8 +397,8 @@ def add_location():
     try:
         if db_location_is_duplicate(new_location):
             return {DEBUG_ERROR: "Location is duplicate"}
-        db_add_location(new_location)
-        return {DEBUG_MESSAGE: "success", "id": proto_id}
+        loc_id = db_add_location(new_location)
+        return {DEBUG_MESSAGE: "success", "id": loc_id}
     except IntegrityError:
         return {DEBUG_ERROR: "failed to add"}
 
