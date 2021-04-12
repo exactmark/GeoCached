@@ -1,7 +1,9 @@
+import math
+
 from sqlalchemy.exc import IntegrityError
 import json
 import os
-from flask import Flask, flash, request, redirect, url_for,jsonify
+from flask import Flask, flash, request, redirect, url_for, jsonify
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 import globals
@@ -29,6 +31,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 DEBUG_ERROR = "debug_error"
 DEBUG_MESSAGE = "debug_message"
 REQUIRE_SESSION_KEY = False
+SAME_LOCATION_THRESHOLD_IN_KILOMETERS = 0.05
 
 db = SQLAlchemy(app)
 
@@ -116,11 +119,52 @@ def db_get_location_by_name(location_name: str):
         return None
 
 
-def db_location_is_duplicate(location_dict):
-    # return False
-    if db_get_location_by_name(location_dict["name"]):
-        return True
-    return False
+def db_test_for_location_add_error(new_location):
+    if db_get_location_by_name(new_location["name"]):
+        return {DEBUG_ERROR: "Location is duplicate"}
+    other_location = db_location_too_close(new_location)
+    if other_location:
+        return {DEBUG_ERROR: "Location is too close, id:" + other_location["id"]}
+    else:
+        return None
+
+
+def db_location_too_close(new_location):
+    all_locations = db.session.query(Location)
+    for single_location in all_locations:
+        distance = get_location_distance(single_location, new_location)
+        if distance < SAME_LOCATION_THRESHOLD_IN_KILOMETERS:
+            return single_location
+    return None
+
+
+def get_location_distance(single_location, new_location):
+    earthRadiusKm = 6371
+    lon1 = single_location["y_coord"]
+    lat1 = single_location["x_coord"]
+    lon2 = new_location["y_coord"]
+    lat2 = new_location["x_coord"]
+    distance_in_km = distanceInKmBetweenEarthCoordinates(lat1,lon1,lat2,lon2)
+    return distance_in_km
+
+def degreesToRadians(degrees):
+    return degrees * math.pi / 180.00
+
+
+def distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2):
+    # as shamelessly pulled from https://stackoverflow.com/questions/365826/calculate-distance-between-2-gps-coordinates
+    earthRadiusKm = 6371
+
+    dLat = degreesToRadians(lat2 - lat1)
+    dLon = degreesToRadians(lon2 - lon1)
+
+    lat1 = degreesToRadians(lat1)
+    lat2 = degreesToRadians(lat2)
+
+    a = math.sin(dLat / 2) * math.sin(dLat / 2) + math.sin(dLon / 2) * math.sin(dLon / 2) * math.cos(lat1) * math.cos(
+        lat2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return earthRadiusKm * c
 
 
 def db_add_location(location_json: json):
@@ -238,6 +282,7 @@ def db_add_log_entry(json_data: json):
     db.session.close()
     return log_id
 
+
 def db_get_logs(location_id: int):
     result = db.session.query(LogEntry).filter_by(location_id=location_id).all()
     db.session.close()
@@ -252,12 +297,11 @@ def db_get_logs(location_id: int):
         return_dict = {}
         for row in result:
             return_result.append(row.as_dict())
-        for x in range(0,len(return_result)):
-            return_dict[x]=return_result[x]
+        for x in range(0, len(return_result)):
+            return_dict[x] = return_result[x]
         return return_dict
     else:
         return None
-
 
 
 # **************
@@ -301,7 +345,6 @@ def get_location_list():
     """Gets a list of locations currently in the db.
 
     Args:
-        None
 
     Returns:
         string: a comma separated list of id numbers
@@ -395,8 +438,9 @@ def add_location():
                     "description": request.form.get("description")}
 
     try:
-        if db_location_is_duplicate(new_location):
-            return {DEBUG_ERROR: "Location is duplicate"}
+        location_error = db_test_for_location_add_error(new_location)
+        if location_error:
+            return location_error
         loc_id = db_add_location(new_location)
         return {DEBUG_MESSAGE: "success", "id": loc_id}
     except IntegrityError:
@@ -489,8 +533,9 @@ def add_log_entry():
 
     Args:
     POST:
-        id (str): User name
-        pw (str): password
+        loc_id (int): Location id from locations table
+        user_id (str): User name
+        text (str): The text of the message
 
     Returns:
         json: failure message or id
@@ -509,6 +554,7 @@ def add_log_entry():
     else:
         return {DEBUG_ERROR: "Use post"}
 
+
 @app.route("/get_log_entries/")
 @require_session_key
 def get_log_entries():
@@ -516,7 +562,7 @@ def get_log_entries():
 
     Args:
     GET:
-        id (int): The index to retrieve
+        loc_id (int): The index to retrieve
 
     Returns:
         json: location information
@@ -531,9 +577,10 @@ def get_log_entries():
             if logs:
                 return logs
             else:
-                return {DEBUG_MESSAGE:"No logs for this location"}
+                return {DEBUG_MESSAGE: "No logs for this location"}
     else:
         return {DEBUG_ERROR: "no location id"}
+
 
 @app.route("/init_db/")
 @require_session_key
