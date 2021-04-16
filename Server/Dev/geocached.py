@@ -30,7 +30,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
 DEBUG_ERROR = "debug_error"
 DEBUG_MESSAGE = "debug_message"
-REQUIRE_SESSION_KEY = False
+REQUIRE_SESSION_KEY = True
 SAME_LOCATION_THRESHOLD_IN_KILOMETERS = 0.05
 
 db = SQLAlchemy(app)
@@ -124,7 +124,7 @@ def db_test_for_location_add_error(new_location):
         return {DEBUG_ERROR: "Location is duplicate"}
     other_location = db_location_too_close(new_location)
     if other_location:
-        return {DEBUG_ERROR: "Location is too close, id:" + other_location["id"]}
+        return {DEBUG_ERROR: "Location is too close, id:" + str(other_location.id)}
     else:
         return None
 
@@ -139,13 +139,15 @@ def db_location_too_close(new_location):
 
 
 def get_location_distance(single_location, new_location):
+    # this part needs to be further tested
     earthRadiusKm = 6371
-    lon1 = single_location["y_coord"]
-    lat1 = single_location["x_coord"]
-    lon2 = new_location["y_coord"]
-    lat2 = new_location["x_coord"]
-    distance_in_km = distanceInKmBetweenEarthCoordinates(lat1,lon1,lat2,lon2)
+    lon1 = float(single_location.y_coord)
+    lat1 = float(single_location.x_coord)
+    lon2 = float(new_location["y_coord"])
+    lat2 = float(new_location["x_coord"])
+    distance_in_km = distanceInKmBetweenEarthCoordinates(lat1, lon1, lat2, lon2)
     return distance_in_km
+
 
 def degreesToRadians(degrees):
     return degrees * math.pi / 180.00
@@ -340,7 +342,7 @@ def hello_world():
 
 
 @app.route("/get_location_list/")
-@require_session_key
+# @require_session_key
 def get_location_list():
     """Gets a list of locations currently in the db.
 
@@ -353,7 +355,7 @@ def get_location_list():
 
 
 @app.route("/get_single_location/")
-@require_session_key
+# @require_session_key
 def get_location():
     """Gets json for single location
 
@@ -556,7 +558,7 @@ def add_log_entry():
 
 
 @app.route("/get_log_entries/")
-@require_session_key
+# @require_session_key
 def get_log_entries():
     """Gets json for single location
 
@@ -583,7 +585,7 @@ def get_log_entries():
 
 
 @app.route("/init_db/")
-@require_session_key
+# @require_session_key
 def init_db():
     """Make sure the db has been initialized...
 

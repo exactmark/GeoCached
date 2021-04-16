@@ -101,6 +101,7 @@ class TestServerRoutes_link(TestCase):
         url = test_url_root + "login/"
         response = requests.post(url, data=single_user)
         response_dict = self.get_dict_from_url_response(response)
+        print(response_dict)
         self.assertEqual(response_dict[DEBUG_ERROR], 'Bad password.')
 
     def test_login_successful_login(self):
