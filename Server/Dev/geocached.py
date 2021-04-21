@@ -50,6 +50,7 @@ class User(Base):
 
     id = db.Column(db.String(250), primary_key=True)
     password = db.Column(db.String(250), nullable=False)
+    score = db.Column(db.Integer)
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -111,7 +112,7 @@ def db_get_location(location_id: int):
 
 def db_get_location_by_name(location_name: str):
     result = db.session.query(Location).filter_by(name=location_name).first()
-    print(result)
+    # print(result)
     db.session.close()
     if result:
         return result.as_dict()
@@ -187,6 +188,18 @@ def db_list_location_ids():
 
 def db_get_user(user_id: str):
     result = db.session.query(User).filter_by(id=user_id).first()
+    db.session.close()
+    if result:
+        result_dict = result.as_dict()
+        return result_dict
+    else:
+        return None
+
+
+def db_update_user_score(user_id, score):
+    result = db.session.query(User).filter_by(id=user_id).first()
+    result.score = score
+    db.session.commit()
     db.session.close()
     if result:
         result_dict = result.as_dict()
@@ -325,7 +338,7 @@ def require_session_key(func):
             return {DEBUG_ERROR: "no session key"}
         elif not db_get_session_owner(session_key):
             return {DEBUG_ERROR: "session key not found"}
-        print(db_get_session_owner(session_key))
+        # print(db_get_session_owner(session_key))
         return func(*args, **kwargs)
 
     return wrapper
@@ -465,7 +478,7 @@ def login():
                   'password': request.form.get('pw')}
     user_entry = db_get_user(proto_user["id"])
     if not user_entry:
-        return {DEBUG_MESSAGE: "No user entry."}
+        return {DEBUG_ERROR: "No user entry."}
     if "password" not in user_entry.keys():
         return {DEBUG_ERROR: "No user entry."}
     elif proto_user["password"] != user_entry["password"]:
@@ -478,7 +491,7 @@ def login():
 
 
 @app.route("/get_single_user/")
-@require_session_key
+# @require_session_key
 def get_user():
     """Check if a user exists
 
@@ -499,7 +512,7 @@ def get_user():
 
 
 @app.route("/add_single_user/", methods=['POST'])
-@require_session_key
+# @require_session_key
 def add_user():
     """Creates user in db
 
@@ -514,8 +527,12 @@ def add_user():
     if request.method == 'POST':
         id = request.form.get('id')
         pw = request.form.get('pw')
+        score = request.form.get('score')
+        if not score:
+            score = 0
         new_user = {'id': id,
-                    'password': pw}
+                    'password': pw,
+                    'score': score}
         existing = db_get_user(new_user["id"])
         if existing:
             return {DEBUG_ERROR: "User exists."}
@@ -582,6 +599,49 @@ def get_log_entries():
                 return {DEBUG_MESSAGE: "No logs for this location"}
     else:
         return {DEBUG_ERROR: "no location id"}
+
+
+@app.route("/get_user_score/")
+# @require_session_key
+def get_user_score():
+    """Gets user score
+
+    Args:
+    GET:
+        user_id (str): The index to retrieve
+
+    Returns:
+        json: score information
+    """
+    user_id = request.args.get('id')
+    user = db_get_user(user_id)
+    if user:
+        user["password"] = ""
+        return user
+    else:
+        return {DEBUG_ERROR: "No user found."}
+
+
+@app.route("/put_user_score/", methods=['POST'])
+@require_session_key
+def put_user_score():
+    """Sets user score
+
+    Args:
+    POST:
+        id (str): The user to set
+        score (int): the new score
+    Returns:
+        json: new score if successful, else error message
+    """
+    user_id = request.form.get('id')
+    score = request.form.get('score')
+    user = db_get_user(user_id)
+    if user and score:
+        db_update_user_score(user_id, score)
+        return user
+    else:
+        return {DEBUG_ERROR: "No user found."}
 
 
 @app.route("/init_db/")

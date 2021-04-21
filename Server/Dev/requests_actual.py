@@ -57,22 +57,39 @@ def add_user(single_user):
 
 def add_location(single_location):
     target_url = base_url + "add_location/"
+    single_location = add_session_key(single_location)
     x = requests.post(target_url, data=single_location)
     r_dict = json.loads(x.text)
     if "id" not in r_dict.keys():
-        print(r_dict["debug_error"])
+        print(x.text)
     else:
         files = {'file': (
             image_list[single_location["name"]].split("/")[-1], open(image_list[single_location["name"]], 'rb'),
             {'Expires': '0'})}
         data = {'loc_name': single_location["name"]}
+        data = add_session_key(data)
         x = requests.post(base_url + 'put_location_image', files=files, data=data)
         print(x.text)
 
+
 def add_log_entry(single_log):
     target_url = base_url + "add_log_entry/"
+    single_log = add_session_key(single_log)
     x = requests.post(target_url, data=single_log)
     print(x.text)
+
+
+def add_session_key(new_data):
+    target_url = base_url + "login"
+    a_user = user_list[0]
+    x = requests.post(target_url, a_user)
+    new_data["session_key"] = json.loads(x.text)["session_key"]
+    return new_data
+
+
+def test_user_score():
+    print("no")
+
 
 def seed_database():
     x = requests.get(base_url + "init_db/")
