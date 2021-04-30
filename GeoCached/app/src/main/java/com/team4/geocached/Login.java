@@ -46,6 +46,8 @@ public class Login extends AppCompatActivity {
                 new Thread(()->{
                     response = serverConnection.login(user,pwd);
                     if(!response.equals("-1")){
+                        User verifiedUser = new User();
+
                         Intent LocationList = new Intent(Login.this,LocationList.class);
                         startActivity(LocationList);
                         finish();

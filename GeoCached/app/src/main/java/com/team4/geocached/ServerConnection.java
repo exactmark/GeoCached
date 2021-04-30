@@ -1,25 +1,43 @@
 package com.team4.geocached;
 
 
+import android.os.Build;
 import android.util.Log;
+import android.util.TimeFormatException;
+
+import androidx.annotation.RequiresApi;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
+import java.util.UUID;
 
 
 public class ServerConnection {
@@ -178,7 +196,7 @@ public class ServerConnection {
     }
 
     public String login(String userId, String passwd){
-        /*HttpURLConnection httpURLConnection = null;
+        HttpURLConnection httpURLConnection = null;
 
         HashMap<String, String> queryParams = new HashMap<>();
 
@@ -191,7 +209,7 @@ public class ServerConnection {
             httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setDoInput(true);
             httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestMethod("GET");
+            httpURLConnection.setRequestMethod("POST");
             httpURLConnection.setChunkedStreamingMode(0);
             httpURLConnection.addRequestProperty("Allow","");
 
@@ -247,8 +265,27 @@ public class ServerConnection {
         }
 
         Log.d("String", data);
+        String session_key = "-1";
+        try{
+            JSONObject jsonObject = new JSONObject(data);
+            try{
+                session_key = jsonObject.getString("session_key");
+            }
+            catch (Exception e){
+                try{
+                    session_key = "-1";
+                }
+                catch (Exception ex){
+                    session_key = "-1";
+                }
+            }
 
-        */
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+       /*
         HttpURLConnection httpURLConnection = null;
 
         HashMap<String, String> queryParams = new HashMap<>();
@@ -291,6 +328,7 @@ public class ServerConnection {
         catch (JSONException e) {
             e.printStackTrace();
         }
+        */
 
         return session_key;
     }
@@ -445,5 +483,139 @@ public class ServerConnection {
         return single_locationObj;
 
 
+    }
+
+    public ArrayList<LogEntry> get_log_entries(int location_id){
+
+        ArrayList<LogEntry> logEntries = new ArrayList<>();
+
+        HttpURLConnection httpURLConnection = null;
+
+        HashMap<String, String> queryParams = new HashMap<>();
+
+        queryParams.put("loc_id", String.valueOf(location_id));
+
+        String data=null;
+        try {
+            this.url = new URL(constructURL("http://exactmark.pythonanywhere.com/get_log_entries/", queryParams));
+            httpURLConnection = URLConnectionObject(this.url, "GET");
+
+            data = ReadHttpResponse(httpURLConnection);
+
+        }
+        catch (MalformedURLException malformedURLException){
+            Log.d("URL",malformedURLException.getMessage());
+        }
+
+        Log.d("String", data);
+
+
+        int id;
+        int locationID;
+        String userID;
+        Date timestamp;
+        String text;
+        DateFormat simpleDateFormat = new SimpleDateFormat("EE, dd MMM yyyy HH:mm:ss z");
+        simpleDateFormat.setTimeZone(TimeZone.getDefault());
+        try{
+            JSONObject jsonObject = new JSONObject(data);
+            Iterator<String> logs = jsonObject.keys();
+            while (logs.hasNext()){
+                String entry = logs.next();
+                Log.d("Entry", entry);
+                Log.d("Data",jsonObject.getString(entry));
+                JSONObject entryObj = new JSONObject(jsonObject.getString(entry));
+                Log.d("id",""+entryObj.getString("id"));
+                id = entryObj.getInt("id");
+                locationID = entryObj.getInt("location_id");
+                text = entryObj.getString("text");
+                timestamp = simpleDateFormat.parse(entryObj.getString("timestamp"));
+                userID = entryObj.getString("user_id");
+                logEntries.add(new LogEntry(id, locationID, userID, timestamp, text));
+            }
+
+        }
+        catch (JSONException | ParseException e){
+            e.printStackTrace();
+        }
+
+
+        return logEntries;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void add_location_photo(int location_id, File file) {
+        HttpURLConnection httpURLConnection = null;
+
+        HashMap<String, String> queryParams = new HashMap<>();
+
+        queryParams.put("loc_id", String.valueOf(location_id));
+        queryParams.put("session_key", "5c227297-a455-41b1-a737-1753e491d104");
+
+
+
+        String boundary = UUID.randomUUID().toString();
+        try {
+            this.url = new URL("http://exactmark.pythonanywhere.com/put_location_image");
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+            DataOutputStream request = new DataOutputStream(httpURLConnection.getOutputStream());
+
+            request.writeBytes("--" + boundary + "\r\n");
+            request.writeBytes("Content-Disposition: form-data; name=\"description\"\r\n\r\n");
+            request.writeBytes("location_image" + "\r\n");
+
+            request.writeBytes("--" + boundary + "\r\n");
+            request.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + location_id + "\"\r\n\r\n");
+            byte[] bytes = Files.readAllBytes(file.toPath());
+            request.write(bytes);
+            request.writeBytes("--" + boundary + "\r\n");
+            request.writeBytes("Content-Disposition: form-data; name=\"loc_id\"; " + location_id + "\"\r\n\r\n");
+            request.writeBytes("--" + boundary + "\r\n");
+            request.writeBytes("Content-Disposition: form-data; name=\"session_key\"; " + "5c227297-a455-41b1-a737-1753e491d104" + "\"\r\n\r\n");
+            request.writeBytes("\r\n");
+
+            request.writeBytes("--" + boundary + "--\r\n");
+
+            request.flush();
+            request.close();
+
+            // checks server's status code first
+            int status = httpURLConnection.getResponseCode();
+            String response;
+
+            if (status == HttpURLConnection.HTTP_OK) {
+                InputStream responseStream = new
+                        BufferedInputStream(httpURLConnection.getInputStream());
+
+                BufferedReader responseStreamReader =
+                        new BufferedReader(new InputStreamReader(responseStream));
+
+                String line = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((line = responseStreamReader.readLine()) != null) {
+                    stringBuilder.append(line).append("\n");
+                }
+                responseStreamReader.close();
+
+                response = stringBuilder.toString();
+                httpURLConnection.disconnect();
+            } else {
+                throw new IOException("Server returned non-OK status: " + status);
+            }
+
+
+
+
+        }
+        catch (MalformedURLException | ProtocolException e){
+            e.printStackTrace();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
     }
 }

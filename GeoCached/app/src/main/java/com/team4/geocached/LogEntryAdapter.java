@@ -13,11 +13,11 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
-public class LocationAdapter extends ArrayAdapter<LocationObj> {
+public class LogEntryAdapter extends ArrayAdapter<LogEntry> {
     private Context mContext;
     private int mResource;
 
-    public LocationAdapter(@NonNull Context context, int resource, @NonNull ArrayList<LocationObj> objects) {
+    public LogEntryAdapter(@NonNull Context context, int resource, @NonNull ArrayList<LogEntry> objects) {
         super(context, resource, objects);
         this.mContext = context;
         this.mResource= resource;
@@ -30,22 +30,18 @@ public class LocationAdapter extends ArrayAdapter<LocationObj> {
 
         convertView = layoutInflater.inflate(mResource,parent,false);
 
-        ImageView imageView =convertView.findViewById(R.id.image);
+        TextView logEntryText =convertView.findViewById(R.id.logEntryText);
 
-        TextView txtName =convertView.findViewById(R.id.txtName);
+        TextView userName =convertView.findViewById(R.id.userName);
 
-        TextView txtDes =convertView.findViewById(R.id.txtDes);
+        TextView timeStamp =convertView.findViewById(R.id.timeStamp);
 
-        TextView dist =convertView.findViewById(R.id.distanceLoc);
+        logEntryText.setText(""+getItem(position).getText());
 
-        imageView.setImageResource(getItem(position).getImage());
+        userName.setText(""+getItem(position).getUserID());
 
-        txtName.setText(getItem(position).getName());
+        timeStamp.setText(""+getItem(position).getTimestamp());
 
-        txtDes.setText(getItem(position).getDescription());
-
-        dist.setText(""+getItem(position).getId());
-
-        return  convertView;
+        return convertView;
     }
 }

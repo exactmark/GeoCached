@@ -1,6 +1,6 @@
 package com.team4.geocached;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class LogEntry {
 
@@ -9,6 +9,14 @@ public class LogEntry {
     private String userID;
     private Date timestamp;
     private String text;
+
+    public LogEntry(int id, int locationID, String userID, Date timestamp, String text) {
+        this.id = id;
+        this.locationID = locationID;
+        this.userID = userID;
+        this.timestamp = timestamp;
+        this.text = text;
+    }
 
     public int getId() {
         return id;

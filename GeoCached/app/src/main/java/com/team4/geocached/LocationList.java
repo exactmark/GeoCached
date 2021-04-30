@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ public class LocationList extends AppCompatActivity {
     ListView listView;
     LocationObj locationObj;
     ServerConnection serverConnection= new ServerConnection();
+    Button addGeoCache;
 
     public static Drawable getDrawableByName(String name, Context context) {
         int drawableResource = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
@@ -32,10 +34,17 @@ public class LocationList extends AppCompatActivity {
         setContentView(R.layout.activity_location_list);
 
         listView =findViewById(R.id.listView);
+        addGeoCache = findViewById(R.id.addLocation);
+
+        addGeoCache.setOnClickListener((v)->{
+            Intent i = new Intent(LocationList.this, AddGeoCache.class);
+
+            startActivity(i);
+        });
 
         //Create data
         ArrayList<LocationObj> arrayList = new ArrayList<>();
-        // TODO add locations
+
 
         new Thread(() -> {
             // Run in background
