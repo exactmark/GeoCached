@@ -543,79 +543,42 @@ public class ServerConnection {
         return logEntries;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+
     public void add_location_photo(int location_id, File file) {
-        HttpURLConnection httpURLConnection = null;
+//        HttpURLConnection httpURLConnection = null;
+//
+//        HashMap<String, String> queryParams = new HashMap<>();
+//
+//        queryParams.put("loc_id", String.valueOf(location_id));
+//        queryParams.put("session_key", "5c227297-a455-41b1-a737-1753e491d104");
 
-        HashMap<String, String> queryParams = new HashMap<>();
+        String requestURL = "http://exactmark.pythonanywhere.com/put_location_image";
 
-        queryParams.put("loc_id", String.valueOf(location_id));
-        queryParams.put("session_key", "5c227297-a455-41b1-a737-1753e491d104");
-
-
-
-        String boundary = UUID.randomUUID().toString();
         try {
-            this.url = new URL("http://exactmark.pythonanywhere.com/put_location_image");
-            httpURLConnection = (HttpURLConnection) url.openConnection();
-            httpURLConnection.setRequestMethod("POST");
-            httpURLConnection.setDoOutput(true);
-            httpURLConnection.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+            MultipartUtility multipart = new MultipartUtility(requestURL, "UTF-8");
 
-            DataOutputStream request = new DataOutputStream(httpURLConnection.getOutputStream());
+            multipart.addFormField("loc_id", String.valueOf(location_id));
+            multipart.addFormField("session_key", "5c227297-a455-41b1-a737-1753e491d104");
+            multipart.addHeaderField("loc_id", String.valueOf(location_id));
 
-            request.writeBytes("--" + boundary + "\r\n");
-            request.writeBytes("Content-Disposition: form-data; name=\"description\"\r\n\r\n");
-            request.writeBytes("location_image" + "\r\n");
+            multipart.addHeaderField("session_key", "5c227297-a455-41b1-a737-1753e491d104");
 
-            request.writeBytes("--" + boundary + "\r\n");
-            request.writeBytes("Content-Disposition: form-data; name=\"file\"; filename=\"" + location_id + "\"\r\n\r\n");
-            byte[] bytes = Files.readAllBytes(file.toPath());
-            request.write(bytes);
-            request.writeBytes("--" + boundary + "\r\n");
-            request.writeBytes("Content-Disposition: form-data; name=\"loc_id\"; " + location_id + "\"\r\n\r\n");
-            request.writeBytes("--" + boundary + "\r\n");
-            request.writeBytes("Content-Disposition: form-data; name=\"session_key\"; " + "5c227297-a455-41b1-a737-1753e491d104" + "\"\r\n\r\n");
-            request.writeBytes("\r\n");
+            multipart.addHeaderField("User-Agent", "com.team4.geocached");
 
-            request.writeBytes("--" + boundary + "--\r\n");
+            multipart.addFormField("description", "Cool Pictures");
+            multipart.addFormField("keywords", "Java,upload,Spring");
 
-            request.flush();
-            request.close();
+            multipart.addFilePart("file", file);
 
-            // checks server's status code first
-            int status = httpURLConnection.getResponseCode();
-            String response;
+            List<String> response = multipart.finish();
 
-            if (status == HttpURLConnection.HTTP_OK) {
-                InputStream responseStream = new
-                        BufferedInputStream(httpURLConnection.getInputStream());
+            for (String line : response) {
+                Log.d("Resp", line);
 
-                BufferedReader responseStreamReader =
-                        new BufferedReader(new InputStreamReader(responseStream));
-
-                String line = "";
-                StringBuilder stringBuilder = new StringBuilder();
-
-                while ((line = responseStreamReader.readLine()) != null) {
-                    stringBuilder.append(line).append("\n");
-                }
-                responseStreamReader.close();
-
-                response = stringBuilder.toString();
-                httpURLConnection.disconnect();
-            } else {
-                throw new IOException("Server returned non-OK status: " + status);
             }
-
-
-
-
+        } catch (IOException ex) {
+            System.err.println(ex);
         }
-        catch (MalformedURLException | ProtocolException e){
-            e.printStackTrace();
-        } catch (IOException ioException) {
-            ioException.printStackTrace();
-        }
+
     }
 }

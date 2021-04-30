@@ -100,15 +100,17 @@ public class AddGeoCache extends AppCompatActivity {
         if(resultCode == RESULT_OK){
             Bitmap image = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
             imageView.setImageBitmap(image);
+            upload();
         }
 
+    }
+
+
+    void upload(){
         new Thread(()->{
             sc.add_location_photo(1, photoFile);
-
+            Log.d("DDD","xyz");
         }).start();
-
-
-
     }
 }
 
