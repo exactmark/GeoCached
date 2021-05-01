@@ -1,8 +1,8 @@
 import requests
 import json
 
-base_url = 'http://127.0.0.1:5000/'
-# base_url = 'https://exactmark.pythonanywhere.com/'
+# base_url = 'http://127.0.0.1:5000/'
+base_url = 'https://exactmark.pythonanywhere.com/'
 
 user_list = [{'id': 'Mark', 'pw': 'WeakPw'},
              {'id': 'Vishal', 'pw': 'WeakPw'},

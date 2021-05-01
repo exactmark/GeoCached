@@ -391,7 +391,7 @@ def get_location():
 
 
 @app.route('/put_location_image', methods=['POST'])
-@require_session_key
+# @require_session_key
 def upload_main_location_image():
     """Uploads the main image for a location and does some processing.
     The location must exist in the db.
@@ -430,7 +430,7 @@ def upload_main_location_image():
 
 
 @app.route("/add_location/", methods=['POST'])
-@require_session_key
+# @require_session_key
 def add_location():
     """Allows creation of new location.
     Will assign the next integer as id.
@@ -546,7 +546,7 @@ def add_user():
 
 
 @app.route("/add_log_entry/", methods=['POST'])
-@require_session_key
+# @require_session_key
 def add_log_entry():
     """Creates user in db
 
@@ -623,7 +623,7 @@ def get_user_score():
 
 
 @app.route("/put_user_score/", methods=['POST'])
-@require_session_key
+# @require_session_key
 def put_user_score():
     """Sets user score
 
