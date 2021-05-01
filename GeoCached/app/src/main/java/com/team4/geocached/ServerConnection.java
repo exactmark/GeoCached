@@ -552,16 +552,16 @@ public class ServerConnection {
 //        queryParams.put("loc_id", String.valueOf(location_id));
 //        queryParams.put("session_key", "5c227297-a455-41b1-a737-1753e491d104");
 
-        String requestURL = "http://exactmark.pythonanywhere.com/put_location_image";
+        String requestURL = "http://10.0.2.2:5000/put_location_image";
 
         try {
             MultipartUtility multipart = new MultipartUtility(requestURL, "UTF-8");
 
             multipart.addFormField("loc_id", String.valueOf(location_id));
-            multipart.addFormField("session_key", "5c227297-a455-41b1-a737-1753e491d104");
+            multipart.addFormField("session_key", "078172d9-cae6-4777-832c-cd46d116cc46");
             multipart.addHeaderField("loc_id", String.valueOf(location_id));
 
-            multipart.addHeaderField("session_key", "5c227297-a455-41b1-a737-1753e491d104");
+            multipart.addHeaderField("session_key", "078172d9-cae6-4777-832c-cd46d116cc46");
 
             multipart.addHeaderField("User-Agent", "com.team4.geocached");
 
