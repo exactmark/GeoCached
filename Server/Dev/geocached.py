@@ -318,6 +318,11 @@ def db_get_logs(location_id: int):
     else:
         return None
 
+def db_get_most_recent_log_entry():
+    result = db.session.query(LogEntry).order_by(LogEntry.timestamp.desc()).first()
+    db.session.close()
+    return result.as_dict()
+
 
 # **************
 # DECORATORS START
@@ -599,6 +604,23 @@ def get_log_entries():
                 return {DEBUG_MESSAGE: "No logs for this location"}
     else:
         return {DEBUG_ERROR: "no location id"}
+
+
+# get_most_recent_log
+@app.route("/get_most_recent_log/")
+# @require_session_key
+def get__most_recent_log():
+    """Gets id and time of most recent log entry
+
+    Args:
+    GET:
+        no args
+
+    Returns:
+        json: location information
+    """
+    result = db_get_most_recent_log_entry()
+    return result
 
 
 @app.route("/get_user_score/")

@@ -5,8 +5,10 @@ user_list = [{'id': 'Mark', 'pw': 'WeakPw'},
              {'id': 'Vishal', 'pw': 'WeakPw'},
              {'id': 'Lakshmi', 'pw': 'WeakPw'}]
 
-# base_url = 'http://127.0.0.1:5000/'
-base_url = 'https://exactmark.pythonanywhere.com/'
+base_url = 'http://127.0.0.1:5000/'
+# base_url = 'https://exactmark.pythonanywhere.com/'
+
+
 # add_user = 'add_single_user/'
 # myobj = {'id': 'Orange', 'pw': 'OrangePw'}
 #
@@ -44,9 +46,9 @@ def add_session_key(new_data):
     return new_data
 
 
-
-data = {'id':"Mark",'score':10}
+data = {'id': "Mark", 'score': 10}
 data = add_session_key(data)
-url = base_url + "put_user_score"
-x = requests.post(url,data)
+url = base_url + "get_most_recent_log"
+# x = requests.post(url,data)
+x = requests.get(url, data)
 print(x)
