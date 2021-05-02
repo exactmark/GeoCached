@@ -1,6 +1,9 @@
 package com.team4.geocached;
 
+import android.app.Activity;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public class LocationAdapter extends ArrayAdapter<LocationObj> {
@@ -38,7 +42,14 @@ public class LocationAdapter extends ArrayAdapter<LocationObj> {
 
         TextView dist =convertView.findViewById(R.id.distanceLoc);
 
-        imageView.setImageResource(getItem(position).getImage());
+        new Thread(()->{
+            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+(position+1)+"_sub_64.jpg");
+
+            ((Activity)mContext).runOnUiThread(()->{
+                imageView.setImageBitmap(bmp);
+            });
+        }).start();
+
 
         txtName.setText(getItem(position).getName());
 
@@ -47,5 +58,18 @@ public class LocationAdapter extends ArrayAdapter<LocationObj> {
         dist.setText(""+getItem(position).getId());
 
         return  convertView;
+    }
+
+    private Bitmap getImageBitmap(String url){
+        Bitmap bitmap = null;
+        try {
+            // Download Image from URL
+            InputStream input = new java.net.URL(url).openStream();
+            // Decode Bitmap
+            bitmap = BitmapFactory.decodeStream(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 }

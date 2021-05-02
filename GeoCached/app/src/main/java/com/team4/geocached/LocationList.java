@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -80,8 +81,6 @@ public class LocationList extends AppCompatActivity {
                             LocationObj list_locationObj = (LocationObj)parent.getItemAtPosition(position);
 
                             i.putExtra("id", list_locationObj.getId());
-
-
 
                             startActivity(i);
                         }

@@ -3,6 +3,7 @@ package com.team4.geocached;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -21,7 +22,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         debug = findViewById(R.id.debug_api);
-        Intent intent = new Intent(getApplicationContext(), AddGeoCache.class);
+        Intent intent = new Intent(getApplicationContext(), LocationList.class);
         startActivity(intent);
         finish();
 

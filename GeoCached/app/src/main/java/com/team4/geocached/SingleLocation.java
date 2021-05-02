@@ -10,6 +10,8 @@ import androidx.core.app.ActivityCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,6 +22,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import java.io.InputStream;
 
 class MyLocationListener implements LocationListener{
 
@@ -194,6 +198,7 @@ public class SingleLocation extends AppCompatActivity{
 
 
         new Thread(()->{
+            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+loc_id+".jpg");
             try{
                 locationObj = serverConnection.get_single_location(loc_id);
                 to.setX_coord(locationObj.getX_coord());
@@ -206,9 +211,10 @@ public class SingleLocation extends AppCompatActivity{
             runOnUiThread(()->{
                 name.setText(""+ locationObj.getName());
                 description.setText(""+ locationObj.getDescription());
-                int res_id = getResources().getIdentifier("i"+loc_id+"_sub_32", "drawable", getPackageName());
+//                int res_id = getResources().getIdentifier("i"+loc_id+"_sub_32", "drawable", getPackageName());
 
-                blurryImage.setImageDrawable(getDrawable(res_id));
+                
+                blurryImage.setImageBitmap(bmp);
             });
         }).start();
 
@@ -247,6 +253,18 @@ public class SingleLocation extends AppCompatActivity{
             // other 'case' lines to check for other
             // permissions this app might request
         }
+    }
+    private Bitmap getImageBitmap(String url){
+        Bitmap bitmap = null;
+        try {
+            // Download Image from URL
+            InputStream input = new java.net.URL(url).openStream();
+            // Decode Bitmap
+            bitmap = BitmapFactory.decodeStream(input);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bitmap;
     }
 
 

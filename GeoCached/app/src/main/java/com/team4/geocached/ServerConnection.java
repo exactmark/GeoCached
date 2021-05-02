@@ -205,7 +205,7 @@ public class ServerConnection {
 
         String data=null;
         try {
-            this.url = new URL("http://exactmark.pythonanywhere.com/login/");
+            this.url = new URL("https://exactmark.pythonanywhere.com/login/");
             httpURLConnection = (HttpURLConnection) url.openConnection();
             httpURLConnection.setDoInput(true);
             httpURLConnection.setDoOutput(true);
@@ -520,18 +520,24 @@ public class ServerConnection {
         try{
             JSONObject jsonObject = new JSONObject(data);
             Iterator<String> logs = jsonObject.keys();
-            while (logs.hasNext()){
-                String entry = logs.next();
-                Log.d("Entry", entry);
-                Log.d("Data",jsonObject.getString(entry));
-                JSONObject entryObj = new JSONObject(jsonObject.getString(entry));
-                Log.d("id",""+entryObj.getString("id"));
-                id = entryObj.getInt("id");
-                locationID = entryObj.getInt("location_id");
-                text = entryObj.getString("text");
-                timestamp = simpleDateFormat.parse(entryObj.getString("timestamp"));
-                userID = entryObj.getString("user_id");
-                logEntries.add(new LogEntry(id, locationID, userID, timestamp, text));
+            if(jsonObject.getString("debug_message").equalsIgnoreCase("no logs for this location")){
+
+            }
+            else {
+                while (logs.hasNext()) {
+                    String entry = logs.next();
+                    Log.d("Entry", entry);
+                    Log.d("Data", jsonObject.getString(entry));
+
+                    JSONObject entryObj = new JSONObject(jsonObject.getString(entry));
+                    Log.d("id", "" + entryObj.getString("id"));
+                    id = entryObj.getInt("id");
+                    locationID = entryObj.getInt("location_id");
+                    text = entryObj.getString("text");
+                    timestamp = simpleDateFormat.parse(entryObj.getString("timestamp"));
+                    userID = entryObj.getString("user_id");
+                    logEntries.add(new LogEntry(id, locationID, userID, timestamp, text));
+                }
             }
 
         }
@@ -544,6 +550,104 @@ public class ServerConnection {
     }
 
 
+    public int add_location_details(String name, String description, double[] XY){
+        HttpURLConnection httpURLConnection = null;
+
+        HashMap<String, String> queryParams = new HashMap<>();
+
+        queryParams.put("name", name);
+        queryParams.put("description",description);
+        queryParams.put("x_coord", String.valueOf(XY[0]));
+        queryParams.put("y_coord", String.valueOf(XY[1]));
+
+
+        String data=null;
+        try {
+            this.url = new URL("http://exactmark.pythonanywhere.com/add_location/");
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setChunkedStreamingMode(0);
+
+            OutputStream os = httpURLConnection.getOutputStream();
+
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(constructPostData(queryParams));
+
+            writer.flush();
+            writer.close();
+            os.close();
+            int responseCode=httpURLConnection.getResponseCode();
+
+            Map<String, List<String>> hf = httpURLConnection.getHeaderFields();
+            for(Map.Entry<String, List<String>> entry: hf.entrySet()){
+                for(String vals : entry.getValue()){
+                    Log.d(entry.getKey(), vals);
+                }
+            }
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder jsonData = new StringBuilder();
+                BufferedReader streamData;
+                try {
+                    streamData = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+
+                    String line;
+                    while ((line = streamData.readLine())!=null) {
+                        jsonData.append(line).append("\n");
+                    }
+                    streamData.close();
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                data=jsonData.toString();
+
+            }
+
+            else {
+                data="";
+
+            }
+
+
+        }
+        catch (MalformedURLException malformedURLException){
+            Log.d("URL",malformedURLException.getMessage());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        Log.d("String", data);
+
+        String response="";
+        String err="";
+        JSONObject jsonObject=null;
+        int result=-1;
+        try{
+            jsonObject = new JSONObject(data);
+            try{
+                response = jsonObject.getString("debug_message");
+            }
+            catch (Exception e) {
+                err = jsonObject.getString("debug_error");
+                result = -2;
+            }
+            if (response.equalsIgnoreCase("success")){
+                Log.d("NEW LOC", jsonObject.getString("id"));
+                result = Integer.parseInt(jsonObject.getString("id"));
+            }
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return result;
+    }
+
     public void add_location_photo(int location_id, File file) {
 //        HttpURLConnection httpURLConnection = null;
 //
@@ -552,7 +656,7 @@ public class ServerConnection {
 //        queryParams.put("loc_id", String.valueOf(location_id));
 //        queryParams.put("session_key", "5c227297-a455-41b1-a737-1753e491d104");
 
-        String requestURL = "http://10.0.2.2:5000/put_location_image";
+        String requestURL = "https://exactmark.pythonanywhere.com/put_location_image";
 
         try {
             MultipartUtility multipart = new MultipartUtility(requestURL, "UTF-8");
