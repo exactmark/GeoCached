@@ -239,6 +239,7 @@ public class AddGeoCache extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
             try {
                 OutputStream out = new FileOutputStream(photoFile);
                 image.compress(Bitmap.CompressFormat.PNG, 100, out);
@@ -266,6 +267,7 @@ public class AddGeoCache extends AppCompatActivity {
             if(addResult>0){
                 sc.add_location_photo(result, photoFile);
                 Log.d("Adding image","success");
+                finish();
             }
             else{
                 Log.d("ADD RESULT", ""+result);
@@ -274,10 +276,10 @@ public class AddGeoCache extends AppCompatActivity {
             runOnUiThread(()->{
                 switch (addResult){
                     case -2:
-                        Toast.makeText(getApplicationContext(),"Location too close to another location", Toast.LENGTH_SHORT);
+                        Toast.makeText(getApplicationContext(),"Location too close to another location", Toast.LENGTH_SHORT).show();
                         break;
                     default:
-                        Toast.makeText(getApplicationContext(),"Successfully added", Toast.LENGTH_SHORT);
+                        Toast.makeText(getApplicationContext(),"Successfully added", Toast.LENGTH_SHORT).show();
                         finish();
                         break;
                 }

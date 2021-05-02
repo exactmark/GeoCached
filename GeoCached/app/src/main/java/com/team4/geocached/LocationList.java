@@ -62,6 +62,13 @@ public class LocationList extends AppCompatActivity {
             finish();
         });
 
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         //Create data
         ArrayList<LocationObj> arrayList = new ArrayList<>();
 
@@ -90,23 +97,22 @@ public class LocationList extends AppCompatActivity {
 
             // Update UI post execution
             runOnUiThread(() ->{
-                    LocationAdapter locationAdapter = new LocationAdapter(this,R.layout.list_row,arrayList);
+                LocationAdapter locationAdapter = new LocationAdapter(this,R.layout.list_row,arrayList);
 
-                    listView.setAdapter(locationAdapter);
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Intent i = new Intent(LocationList.this, SingleLocation.class);
-                            LocationObj list_locationObj = (LocationObj)parent.getItemAtPosition(position);
+                listView.setAdapter(locationAdapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent i = new Intent(LocationList.this, SingleLocation.class);
+                        LocationObj list_locationObj = (LocationObj)parent.getItemAtPosition(position);
 
-                            i.putExtra("id", list_locationObj.getId());
+                        i.putExtra("id", list_locationObj.getId());
 
-                            startActivity(i);
-                        }
-                    });
-
+                        startActivity(i);
+                    }
                 });
-        }).start();
 
+            });
+        }).start();
     }
 }
