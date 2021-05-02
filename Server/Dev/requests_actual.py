@@ -1,8 +1,8 @@
 import requests
 import json
 
-# base_url = 'http://127.0.0.1:5000/'
-base_url = 'https://exactmark.pythonanywhere.com/'
+base_url = 'http://127.0.0.1:5000/'
+# base_url = 'https://exactmark.pythonanywhere.com/'
 
 user_list = [{'id': 'Mark', 'pw': 'WeakPw'},
              {'id': 'Vishal', 'pw': 'WeakPw'},
@@ -15,6 +15,8 @@ location_list = [
      "description": "This thing doesn't float"},
     {"name": "The Student Center", "x_coord": "33.9410821", "y_coord": "-84.5206215",
      "description": "I've studied here."}
+    # {"name": "Some fifthLcoation", "x_coord": "34.9410821", "y_coord": "-84.5206215",
+    #  "description": "I've studied here."}
 ]
 
 image_list = {"Mark's Place": "seed_images/Mark.jpg",
@@ -60,6 +62,7 @@ def add_location(single_location):
     single_location = add_session_key(single_location)
     x = requests.post(target_url, data=single_location)
     r_dict = json.loads(x.text)
+    print(x.text)
     if "id" not in r_dict.keys():
         print(x.text)
     else:

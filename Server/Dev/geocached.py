@@ -174,8 +174,8 @@ def db_add_location(location_json: json):
     new_location = Location()
     new_location = set_columns_from_json(new_location, location_json)
     db.session.add(new_location)
-    loc_id = new_location.id
     db.session.commit()
+    loc_id = new_location.id
     db.session.close()
     return loc_id
 
@@ -606,7 +606,6 @@ def get_log_entries():
         return {DEBUG_ERROR: "no location id"}
 
 
-# get_most_recent_log
 @app.route("/get_most_recent_log/")
 # @require_session_key
 def get__most_recent_log():
