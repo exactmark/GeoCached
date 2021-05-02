@@ -237,7 +237,7 @@ public class AddGeoCache extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            imageView.setBackgroundResource(0);
             imageView.setImageBitmap(image);
         }
 
