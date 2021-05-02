@@ -91,6 +91,7 @@ public class CheckIn extends AppCompatActivity {
 
             // Update UI post execution
             runOnUiThread(() ->{
+                clearImage.setBackgroundResource(0);
                 clearImage.setImageBitmap(bmp);
                 LogEntryAdapter logEntryAdapter = new LogEntryAdapter(this,R.layout.list_log_entry,logEntries);
                 locationName.setText(location.getName());

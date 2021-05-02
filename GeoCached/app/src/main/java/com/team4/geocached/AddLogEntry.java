@@ -37,6 +37,7 @@ public class AddLogEntry extends AppCompatActivity {
         Log.d("User", user);
 
         addLogEntrySubmit = findViewById(R.id.addLogEntrySubmit);
+        addLogEntrySubmit.setEnabled(false);
         comments = findViewById(R.id.addLogText);
 
         comments.addTextChangedListener(new TextWatcher() {
@@ -48,6 +49,11 @@ public class AddLogEntry extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 Log.d("comments", comments.getText().toString());
+                if (comments.getText().length() > 0) {
+                    addLogEntrySubmit.setEnabled(true);
+                }else{
+                    addLogEntrySubmit.setEnabled(false);
+                }
             }
 
             @Override

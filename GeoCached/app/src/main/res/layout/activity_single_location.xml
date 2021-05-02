@@ -22,6 +22,8 @@
             android:id="@+id/location_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/rocko"
+            android:gravity="center"
             android:paddingTop="25dp"
             android:paddingBottom="5dp"
             android:textSize="24sp" />
@@ -43,6 +45,8 @@
             android:id="@+id/description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/rocko"
+            android:paddingStart="15dp"
             android:paddingTop="10dp"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
