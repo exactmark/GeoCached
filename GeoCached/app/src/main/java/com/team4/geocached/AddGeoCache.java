@@ -39,7 +39,9 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
@@ -237,6 +239,18 @@ public class AddGeoCache extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            try {
+                OutputStream out = new FileOutputStream(photoFile);
+                image.compress(Bitmap.CompressFormat.PNG, 100, out);
+                out.flush();
+                out.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+
+
             imageView.setBackgroundResource(0);
             imageView.setImageBitmap(image);
         }
