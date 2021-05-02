@@ -75,8 +75,10 @@ class MyLocationListener implements LocationListener{
         double x = Math.round(computeDist(current, to) * 100.0) / 100.0;
         if(x>1000){
             directionText.setText(Math.round((x/1000.0) * 100.0) / 100.0+ "km away");
-        }else
-        directionText.setText(x+"m away.");
+        }
+        else
+            directionText.setText(x+"m away.");
+
         directionMarker.setRotation((float)dir_theta);
 
         if(x<50){

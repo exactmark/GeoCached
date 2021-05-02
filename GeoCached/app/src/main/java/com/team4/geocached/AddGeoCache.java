@@ -111,6 +111,10 @@ public class AddGeoCache extends AppCompatActivity {
             takePicture();
         });
 
+        imageView.setOnClickListener(v->{
+            takePicture();
+        });
+
         submit.setOnClickListener(v->{
             upload();
         });

@@ -18,6 +18,14 @@
 <!--            app:srcCompat="@drawable/abc_vector_test"-->
 <!--        />-->
 
+        <TextView
+            android:id="@+id/location_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="25dp"
+            android:paddingBottom="5dp"
+            android:textSize="24sp" />
+
         <ImageView
             android:id="@+id/blurryImage"
             android:layout_width="match_parent"
@@ -30,6 +38,17 @@
             android:layout_marginBottom="15dp"
             android:forceDarkAllowed="false"
             app:srcCompat="@drawable/ic_launcher_foreground" />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="10dp"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/directionMarker"
@@ -53,25 +72,6 @@
             android:textAlignment="center"
             android:textSize="30dp"
             android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/location_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="25dp"
-            android:paddingBottom="5dp"
-            android:textSize="24sp" />
-
-        <TextView
-            android:id="@+id/description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
 
         <Button
             android:id="@+id/checkinbutton"
