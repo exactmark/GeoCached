@@ -43,7 +43,7 @@ public class LocationAdapter extends ArrayAdapter<LocationObj> {
         TextView dist =convertView.findViewById(R.id.distanceLoc);
 
         new Thread(()->{
-            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+(position+1)+"_sub_64.jpg");
+            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+getItem(position).getId()+"_sub_16.jpg");
 
             ((Activity)mContext).runOnUiThread(()->{
                 imageView.setImageBitmap(bmp);

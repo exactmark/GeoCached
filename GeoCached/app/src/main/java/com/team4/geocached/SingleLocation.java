@@ -198,7 +198,7 @@ public class SingleLocation extends AppCompatActivity{
 
 
         new Thread(()->{
-            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+loc_id+".jpg");
+            Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+loc_id+"_sub_64.jpg");
             try{
                 locationObj = serverConnection.get_single_location(loc_id);
                 to.setX_coord(locationObj.getX_coord());

@@ -520,24 +520,22 @@ public class ServerConnection {
         try{
             JSONObject jsonObject = new JSONObject(data);
             Iterator<String> logs = jsonObject.keys();
-            if(jsonObject.getString("debug_message").equalsIgnoreCase("no logs for this location")){
 
-            }
-            else {
-                while (logs.hasNext()) {
-                    String entry = logs.next();
-                    Log.d("Entry", entry);
-                    Log.d("Data", jsonObject.getString(entry));
-
-                    JSONObject entryObj = new JSONObject(jsonObject.getString(entry));
-                    Log.d("id", "" + entryObj.getString("id"));
-                    id = entryObj.getInt("id");
-                    locationID = entryObj.getInt("location_id");
-                    text = entryObj.getString("text");
-                    timestamp = simpleDateFormat.parse(entryObj.getString("timestamp"));
-                    userID = entryObj.getString("user_id");
-                    logEntries.add(new LogEntry(id, locationID, userID, timestamp, text));
+            while (logs.hasNext()){
+                String entry = logs.next();
+                Log.d("Entry", entry);
+                Log.d("Data",jsonObject.getString(entry));
+                if(entry.equalsIgnoreCase("debug_message")){
+                    break;
                 }
+                JSONObject entryObj = new JSONObject(jsonObject.getString(entry));
+                Log.d("id",""+entryObj.getString("id"));
+                id = entryObj.getInt("id");
+                locationID = entryObj.getInt("location_id");
+                text = entryObj.getString("text");
+                timestamp = simpleDateFormat.parse(entryObj.getString("timestamp"));
+                userID = entryObj.getString("user_id");
+                logEntries.add(new LogEntry(id, locationID, userID, timestamp, text));
             }
 
         }
