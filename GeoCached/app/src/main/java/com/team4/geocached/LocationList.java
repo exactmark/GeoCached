@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -21,6 +22,7 @@ public class LocationList extends AppCompatActivity {
     LocationObj locationObj;
     ServerConnection serverConnection= new ServerConnection();
     Button addGeoCache;
+    Button logout;
 
     public static Drawable getDrawableByName(String name, Context context) {
         int drawableResource = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
@@ -36,11 +38,22 @@ public class LocationList extends AppCompatActivity {
 
         listView =findViewById(R.id.listView);
         addGeoCache = findViewById(R.id.addLocation);
+        logout = findViewById(R.id.logout);
 
         addGeoCache.setOnClickListener((v)->{
             Intent i = new Intent(LocationList.this, AddGeoCache.class);
 
             startActivity(i);
+        });
+
+        logout.setOnClickListener((v)->{
+            SharedPreferences sp = getApplicationContext().getSharedPreferences("geocached", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.remove("user_id");
+            editor.apply();
+            Intent Login = new Intent(this,Login.class);
+            startActivity(Login);
+            finish();
         });
 
         //Create data

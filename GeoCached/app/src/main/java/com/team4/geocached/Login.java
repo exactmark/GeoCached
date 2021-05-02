@@ -2,7 +2,9 @@ package com.team4.geocached;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -21,6 +23,8 @@ public class Login extends AppCompatActivity {
     TextView Register;
     ServerConnection serverConnection = new ServerConnection();
     String response="";
+    SharedPreferences sp;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +35,9 @@ public class Login extends AppCompatActivity {
         Password = (EditText)findViewById(R.id.edittext_password);
         Login = (Button)findViewById(R.id.button_login);
         Register = (TextView)findViewById(R.id.textview_register);
+
+        sp =  getApplicationContext().getSharedPreferences("geocached", Context.MODE_PRIVATE);
+
         Register.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -46,7 +53,13 @@ public class Login extends AppCompatActivity {
                 new Thread(()->{
                     response = serverConnection.login(user,pwd);
                     if(!response.equals("-1")){
-                        User verifiedUser = new User();
+
+                        editor = sp.edit();
+                        editor.putString("user_id", user);
+                        editor.putString("sesssion_key", response);
+                        // TODO editor.putString("score",getScore());
+                        editor.apply();
+
 
                         Intent LocationList = new Intent(Login.this,LocationList.class);
                         startActivity(LocationList);
@@ -64,4 +77,14 @@ public class Login extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if(!sp.getString("user_id", "no_user").equalsIgnoreCase("no_user")){
+            Intent LocationList = new Intent(Login.this,LocationList.class);
+            startActivity(LocationList);
+            finish();
+        }
+    }
 }

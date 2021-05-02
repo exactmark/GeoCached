@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,9 +23,10 @@ public class CheckIn extends AppCompatActivity {
     ImageView clearImage;
     TextView locationName;
     ServerConnection sc = new ServerConnection();
-    LogEntry logEntry;
+    Button newLogEntry;
     LocationObj location;
     ListView logEntryList;
+    int loc_id;
     ArrayList<LogEntry> logEntries = new ArrayList<>();
     private Bitmap getImageBitmap(String url){
         Bitmap bitmap = null;
@@ -45,15 +47,35 @@ public class CheckIn extends AppCompatActivity {
         setContentView(R.layout.activity_check_in);
 
         clearImage = findViewById(R.id.clearImage);
-        int loc_id = getIntent().getIntExtra("id", -1);
+         loc_id = getIntent().getIntExtra("id", -1);
 //        int res_id = getResources().getIdentifier("i"+loc_id, "drawable", getPackageName());
 
 //        clearImage.setImageDrawable(getDrawable(res_id));
 
         logEntryList = findViewById(R.id.logEntriesList);
         locationName = findViewById(R.id.locationName);
+        newLogEntry = findViewById(R.id.newLogEntry);
+
+        newLogEntry.setOnClickListener((v)->{
+            Intent addNewLog = new Intent(getApplicationContext(), AddLogEntry.class);
+            addNewLog.putExtra("loc_id", loc_id);
+            startActivity(addNewLog);
+        });
 
 
+
+
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        getLogs();
+    }
+
+    void getLogs(){
         new Thread(() -> {
             // Run in background
             Bitmap bmp = getImageBitmap("https://exactmark.pythonanywhere.com/images/"+loc_id+".jpg");
@@ -76,8 +98,5 @@ public class CheckIn extends AppCompatActivity {
                 logEntryList.setAdapter(logEntryAdapter);
             });
         }).start();
-
-
-
     }
 }

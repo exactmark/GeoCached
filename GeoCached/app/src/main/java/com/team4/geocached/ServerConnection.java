@@ -7,6 +7,8 @@ import android.util.TimeFormatException;
 
 import androidx.annotation.RequiresApi;
 
+import com.google.android.material.textfield.TextInputEditText;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -682,5 +684,101 @@ public class ServerConnection {
             System.err.println(ex);
         }
 
+    }
+
+    public int add_log_entry(int loc_id, String user, String comments) {
+        HttpURLConnection httpURLConnection = null;
+
+        HashMap<String, String> queryParams = new HashMap<>();
+
+        queryParams.put("loc_id", String.valueOf(loc_id));
+        queryParams.put("user_id",user);
+        queryParams.put("text", comments);
+
+
+        String data=null;
+        try {
+            this.url = new URL("http://exactmark.pythonanywhere.com/add_log_entry/");
+            httpURLConnection = (HttpURLConnection) url.openConnection();
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(true);
+            httpURLConnection.setRequestMethod("POST");
+            httpURLConnection.setChunkedStreamingMode(0);
+
+            OutputStream os = httpURLConnection.getOutputStream();
+
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(constructPostData(queryParams));
+
+            writer.flush();
+            writer.close();
+            os.close();
+            int responseCode=httpURLConnection.getResponseCode();
+
+            Map<String, List<String>> hf = httpURLConnection.getHeaderFields();
+            for(Map.Entry<String, List<String>> entry: hf.entrySet()){
+                for(String vals : entry.getValue()){
+                    Log.d(entry.getKey(), vals);
+                }
+            }
+
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                StringBuilder jsonData = new StringBuilder();
+                BufferedReader streamData;
+                try {
+                    streamData = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
+
+                    String line;
+                    while ((line = streamData.readLine())!=null) {
+                        jsonData.append(line).append("\n");
+                    }
+                    streamData.close();
+                }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+
+                data=jsonData.toString();
+
+            }
+
+            else {
+                data="";
+
+            }
+
+
+        }
+        catch (MalformedURLException malformedURLException){
+            Log.d("URL",malformedURLException.getMessage());
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+
+        Log.d("String", data);
+
+        String response="";
+        String err="";
+        JSONObject jsonObject=null;
+        int result=-1;
+        try{
+            jsonObject = new JSONObject(data);
+            try{
+                response = jsonObject.getString("debug_message");
+                String[] resp = response.split("=");
+
+                result = Integer.parseInt(resp[1].trim());
+            }
+            catch (JSONException e) {
+                err = jsonObject.getString("debug_error");
+                result = -2;
+            }
+        }
+        catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        return result;
     }
 }
