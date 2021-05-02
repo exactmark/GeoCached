@@ -190,6 +190,7 @@ public class SingleLocation extends AppCompatActivity{
             Intent checkinIntent = new Intent(getApplicationContext(), CheckIn.class);
             checkinIntent.putExtra("id",getIntent().getIntExtra("id",-1));
             startActivity(checkinIntent);
+            finish();
         });
 
 
