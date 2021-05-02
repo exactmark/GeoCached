@@ -6,10 +6,24 @@
     android:layout_height="match_parent"
     tools:context=".LocationList">
 
+    <TextView
+        android:id="@+id/Header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:fontFamily="@font/rockoultraflf"
+        android:text="Hello! "
+        android:textSize="24sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <Button
         android:id="@+id/addLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/rockoflf_bold"
         android:text="Add Geo Cache"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -22,12 +36,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="15dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/Header">
 
         <ImageView
             android:id="@+id/imageView"
@@ -43,7 +57,7 @@
             android:layout_marginTop="45dp"
             android:layout_weight="1"
             android:fontFamily="@font/rockoultraflf"
-            android:text="Locations"
+            android:text="Geo Cache List"
             android:textSize="36sp" />
 
     </LinearLayout>
@@ -68,6 +82,7 @@
         android:id="@+id/logout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/rockoflf_bold"
         android:text="Logout"
         app:layout_constraintBottom_toBottomOf="@+id/addLocation"
         app:layout_constraintEnd_toEndOf="parent"

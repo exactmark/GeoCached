@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,7 @@ public class LocationList extends AppCompatActivity {
     ServerConnection serverConnection= new ServerConnection();
     Button addGeoCache;
     Button logout;
+    TextView header;
 
     public static Drawable getDrawableByName(String name, Context context) {
         int drawableResource = context.getResources().getIdentifier(name, "drawable", context.getPackageName());
@@ -36,9 +38,13 @@ public class LocationList extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_location_list);
 
+        SharedPreferences sp = getApplicationContext().getSharedPreferences("geocached", Context.MODE_PRIVATE);
+
         listView =findViewById(R.id.listView);
         addGeoCache = findViewById(R.id.addLocation);
         logout = findViewById(R.id.logout);
+        header = findViewById(R.id.Header);
+        header.setText("Hello! "+ sp.getString("user_id", ""));
 
         addGeoCache.setOnClickListener((v)->{
             Intent i = new Intent(LocationList.this, AddGeoCache.class);
@@ -47,7 +53,7 @@ public class LocationList extends AppCompatActivity {
         });
 
         logout.setOnClickListener((v)->{
-            SharedPreferences sp = getApplicationContext().getSharedPreferences("geocached", Context.MODE_PRIVATE);
+
             SharedPreferences.Editor editor = sp.edit();
             editor.remove("user_id");
             editor.apply();
