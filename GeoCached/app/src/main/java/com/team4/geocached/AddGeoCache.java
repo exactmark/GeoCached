@@ -31,6 +31,7 @@ import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -251,6 +252,7 @@ public class AddGeoCache extends AppCompatActivity {
                 ioException.printStackTrace();
             }
 
+            captureImage.setText("Change Image");
 
             imageView.setBackgroundResource(0);
             imageView.setImageBitmap(image);
