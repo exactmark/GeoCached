@@ -46,9 +46,11 @@ def add_session_key(new_data):
     return new_data
 
 
-data = {'id': "Mark", 'score': 10}
+data = {'id': "3", 'score': 10}
 data = add_session_key(data)
-url = base_url + "get_most_recent_log"
-# x = requests.post(url,data)
-x = requests.get(url, data)
+# url = base_url + "delete_log_entry"
+url = base_url + "delete_location"
+x = requests.post(url,data)
+# x = requests.get(url, data)
 print(x)
+print(x.text)

@@ -77,7 +77,7 @@ class Location(Base):
     x_coord = db.Column(db.String(20))
     y_coord = db.Column(db.String(20))
     description = db.Column(db.String(250), nullable=True)
-    log_entries = db.relationship("LogEntry")
+    log_entries = db.relationship("LogEntry",cascade="all, delete-orphan")
 
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -178,6 +178,16 @@ def db_add_location(location_json: json):
     loc_id = new_location.id
     db.session.close()
     return loc_id
+
+def db_delete_location(location_id:int):
+    result = db.session.query(Location).filter_by(id=location_id).first()
+    if result:
+        db.session.delete(result)
+        db.session.commit()
+        db.session.close()
+        return "success"
+    return "no location"
+
 
 
 def db_list_location_ids():
@@ -296,6 +306,15 @@ def db_add_log_entry(json_data: json):
     log_id = new_obj.id
     db.session.close()
     return log_id
+
+def db_delete_log_entry(log_id:int):
+    result = db.session.query(LogEntry).filter_by(id=log_id).first()
+    if result:
+        db.session.delete(result)
+        db.session.commit()
+        db.session.close()
+        return "success"
+    return "no log entry"
 
 
 def db_get_logs(location_id: int):
@@ -467,6 +486,28 @@ def add_location():
         return {DEBUG_ERROR: "failed to add"}
 
 
+@app.route("/delete_location/", methods=['POST'])
+# @require_session_key
+def delete_location():
+    """Allows deletion of a location
+
+    Args:
+    POST:
+        name (str): The location name. Currently being checked for uniqueness
+        x_coord (str): Latitude
+        y_coord (str): Longitude
+        description (str): A short description
+
+    Returns:
+        json: success/failure
+    """
+    loc_id = request.form.get("id")
+
+    message = db_delete_location(loc_id)
+    return {DEBUG_MESSAGE: message, "id": loc_id}
+
+
+
 @app.route("/login/", methods=['POST'])
 def login():
     """Allows login
@@ -577,6 +618,24 @@ def add_log_entry():
         return {DEBUG_MESSAGE: "newLogID = %d" % new_log_id}
     else:
         return {DEBUG_ERROR: "Use post"}
+
+@app.route("/delete_log_entry/", methods=['POST'])
+# @require_session_key
+def delete_log_entry():
+    """deletes log entry
+
+    Args:
+    POST:
+        log_id (int): log id from logentry table
+
+    Returns:
+        json: failure message or id
+    """
+    log_id = request.form.get("id")
+
+    message =db_delete_log_entry(log_id)
+    return {DEBUG_MESSAGE: message, "id": log_id}
+
 
 
 @app.route("/get_log_entries/")
