@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Login">
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_bg"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:context=".LoginActivity">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:contentDescription="GeoCached Logo"
+            app:srcCompat="@drawable/gc_boot_logo" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:background="#002196F3"
+            android:fontFamily="@font/rockoultraflf"
+            android:text="@string/geocached"
+            android:textAlignment="center"
+            android:textColor="@color/title_color"
+            android:textSize="35sp" />
+
+        <EditText
+            android:id="@+id/edittext_username"
+            android:layout_width="275dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:background="#70FFFFFF"
+            android:backgroundTint="#090C08"
+            android:drawableLeft="@drawable/gc_username"
+            android:fontFamily="@font/rockoultraflf"
+            android:hint="@string/username"
+            android:includeFontPadding="true"
+            android:padding="5dp"
+            android:paddingLeft="2dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textColorHint="#80FFFFFF"
+            android:textColorLink="@color/white" />
+
+        <EditText
+            android:id="@+id/edittext_password"
+            android:layout_width="275dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="#70FFFFFF"
+            android:backgroundTint="#090C08"
+            android:drawableLeft="@drawable/gc_password"
+            android:fontFamily="@font/rockoultraflf"
+            android:hint="@string/password"
+            android:includeFontPadding="true"
+            android:inputType="textPassword"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textColorHint="#80FFFFFF"
+            android:textColorLink="@color/white" />
+
+        <Button
+            android:id="@+id/button_login"
+            android:layout_width="190dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="25dp"
+            android:backgroundTint="#3CDBD3"
+            android:drawableLeft="@drawable/gc_user_in"
+            android:fontFamily="@font/rockoultraflf"
+            android:text="@string/login"
+            android:textAlignment="viewStart"
+            android:textColor="#090C08" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:fontFamily="@font/rockoultraflf"
+                android:text="@string/not_registered"
+                android:textColor="#090C08"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textview_register"
+                android:layout_width="wrap_content"
+                android:layout_height="35dp"
+                android:fontFamily="@font/rockoultraflf"
+                android:paddingLeft="10dp"
+                android:text="@string/register"
+                android:textAllCaps="true"
+                android:textColor="#2196F3"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

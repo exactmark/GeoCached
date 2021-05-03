@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/white"
+        android:padding="10dp"
+        android:paddingBottom="15dp"
+        tools:layout_editor_absoluteY="1dp">
+
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="80dp"
+            android:layout_height="80dp" />
+
+        <TextView
+            android:id="@+id/txtName"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/image"
+            android:fontFamily="@font/rockoflf_bold"
+            android:text="Location Name" />
+
+        <TextView
+            android:id="@+id/txtDes"
+            style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/txtName"
+            android:layout_marginLeft="20dp"
+            android:layout_toRightOf="@+id/image"
+            android:fontFamily="@font/rocko"
+            android:maxLength="50"
+            android:singleLine="true"
+            android:text="Des" />
+
+        <TextView
+            android:id="@+id/distanceLoc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/image"
+            android:layout_marginStart="20dp"
+            android:layout_marginBottom="4dp"
+            android:layout_toEndOf="@+id/image"
+            android:text="dist" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
